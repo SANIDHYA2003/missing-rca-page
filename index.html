@@ -1127,49 +1127,54 @@ td.muted {
   <div class="grid kpi" id="kpis"></div>
 
   <div class="grid overview">
-    <div class="card chartPanel compact sectionCompact">
-      <div class="sectionHead">
-        <div>
-          <h2>1) Executive split</h2>
-          <p>Total complaint rows from the workbook, split by complaint type so you can see quality, missing, quantity, wrong item, packaging, and smaller buckets in one view.</p>
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      <div class="card chartPanel compact sectionCompact">
+        <div class="sectionHead">
+          <div>
+            <h2>1) Executive split</h2>
+            <p>Total complaint rows from the workbook, split by complaint type so you can see quality, missing, quantity, wrong item, packaging, and smaller buckets in one view.</p>
+          </div>
+          <div class="chipRow">
+            <span class="badge" id="coverageBadge"></span>
+            <span class="badge" id="reviewBadge"></span>
+          </div>
         </div>
-        <div class="chipRow">
-          <span class="badge" id="coverageBadge"></span>
-          <span class="badge" id="reviewBadge"></span>
-        </div>
+        <div id="verdictDonut"></div>
       </div>
-      <div id="verdictDonut"></div>
-    </div>
-    <div class="card chartPanel compact sectionCompact">
-      <h2>2) Day-one operational improvement potential</h2>
-      <p>Missing Item, Wrong Item, and Quantity are the most directly reducible from store-side execution, KOT reading, packing, and final verification.</p>
-      <div class="impactGrid">
-        <div>
-          <div id="opsImpactDonut"></div>
-          <div id="opsImpactSplit"></div>
+      <div class="card chartPanel compact">
+        <div class="sectionHead">
+          <div>
+            <h2>3) Source mix</h2>
+            <p>Where the RCA volume is coming from and how each source resolves.</p>
+          </div>
         </div>
-        <div>
-          <div id="opsImpactBars"></div>
-        </div>
+        <div id="sourceMix"></div>
       </div>
     </div>
-    <div class="card chartPanel compact">
-      <div class="sectionHead">
-        <div>
-          <h2>3) Source mix</h2>
-          <p>Where the RCA volume is coming from and how each source resolves.</p>
+
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      <div class="card chartPanel compact sectionCompact">
+        <h2>2) Day-one operational improvement potential</h2>
+        <p>Missing Item, Wrong Item, and Quantity are the most directly reducible from store-side execution, KOT reading, packing, and final verification.</p>
+        <div class="impactGrid">
+          <div>
+            <div id="opsImpactDonut"></div>
+            <div id="opsImpactSplit"></div>
+          </div>
+          <div>
+            <div id="opsImpactBars"></div>
+          </div>
         </div>
       </div>
-      <div id="sourceMix"></div>
-    </div>
-    <div class="card chartPanel compact">
-      <div class="sectionHead">
-        <div>
-          <h2>4) Highest-risk stores</h2>
-          <p>Top stores by confirmed store-side missing-order cases. Share below is out of <b>119 confirmed store-side missing-order rows</b>, not out of 207 total missing-order rows.</p>
+      <div class="card chartPanel compact">
+        <div class="sectionHead">
+          <div>
+            <h2>4) Highest-risk stores</h2>
+            <p>Top stores by confirmed store-side missing-order cases. Share below is out of <b>119 confirmed store-side missing-order rows</b>, not out of 207 total missing-order rows.</p>
+          </div>
         </div>
+        <div id="topStoresChart"></div>
       </div>
-      <div id="topStoresChart"></div>
     </div>
   </div>
 
