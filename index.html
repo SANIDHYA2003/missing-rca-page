@@ -6,42 +6,122 @@
 <title>June Missing Item RCA Deep-Dive Final</title>
 <style>
 :root{
-  --bg:#07111f; --panel:#101d33; --panel2:#152640; --line:#29415f; --text:#f3f7ff; --muted:#aebdda;
-  --accent:#42d7ad; --accent2:#62aef7; --bad:#ff7777; --warn:#ffd36e; --good:#7ee39a;
+  --bg:#06101d; --bg2:#0a1627; --panel:#0f1b2e; --panel2:#13233b; --line:#223856; --line-soft:#1a2d46;
+  --text:#eef4ff; --muted:#95a7c5; --accent:#57d6b3; --accent2:#67a9ff; --accent3:#8b7dff;
+  --bad:#ff7878; --warn:#ffc96c; --good:#7fe2a0; --shadow:0 16px 42px rgba(0,0,0,.28);
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;line-height:1.45}
-.wrap{max-width:1540px;margin:0 auto;padding:22px}
-h1{font-size:42px;line-height:1.08;margin:0 0 8px;font-weight:900}
-h2{font-size:28px;margin:0 0 18px}
-h3{font-size:20px;margin:0 0 10px}
-p{color:var(--muted);margin:6px 0 14px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:22px;margin:16px 0;box-shadow:0 8px 22px rgba(0,0,0,.18)}
+body{margin:0;background:radial-gradient(circle at top left,rgba(103,169,255,.12),transparent 28%),linear-gradient(180deg,var(--bg),var(--bg2) 40%,var(--bg));color:var(--text);font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;line-height:1.45;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.wrap{max-width:1480px;margin:0 auto;padding:20px}
+h1{font-size:40px;line-height:1.02;margin:0 0 8px;font-weight:900}
+h2{font-size:24px;margin:0 0 14px}
+h3{font-size:17px;margin:0 0 8px}
+p{color:var(--muted);margin:6px 0 12px}
+.card{background:#12233c;border:1px solid rgba(50,80,120,.72);border-radius:18px;padding:18px;margin:14px 0;box-shadow:var(--shadow)}
 .grid{display:grid;gap:18px}
-.grid.kpi{grid-template-columns:repeat(6,minmax(150px,1fr))}
+.grid.kpi{grid-template-columns:repeat(6,minmax(160px,1fr))}
 .grid.two{grid-template-columns:1fr 1fr}
 .grid.three{grid-template-columns:repeat(3,1fr)}
-.kpiBox{background:linear-gradient(180deg,#13233c,#0c1729);border:1px solid var(--line);border-radius:18px;padding:18px;min-height:112px}
-.kpiBox .num{font-size:32px;font-weight:900;margin:4px 0}
+.grid.overview{grid-template-columns:1fr 1fr;align-items:start}
+.heroCard{padding:28px;overflow:hidden;position:relative}
+.heroCard:before{content:"";position:absolute;inset:auto -80px -90px auto;width:220px;height:220px;border-radius:999px;background:radial-gradient(circle,rgba(87,214,179,.24),transparent 68%)}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:7px 11px;border-radius:999px;border:1px solid var(--line);background:rgba(7,18,37,.6);font-size:12px;color:#c3d2ee;text-transform:uppercase;letter-spacing:.08em}
+.heroLead{max-width:760px;font-size:15px}
+.heroMeta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}
+.heroMetric{background:rgba(7,18,37,.68);border:1px solid var(--line-soft);border-radius:14px;padding:14px;min-height:96px}
+.heroMetric strong{display:block;font-size:28px;line-height:1.1;margin-bottom:6px}
+.sectionHead{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:12px}
+.sectionHead p{margin:0;max-width:760px}
+.chipRow{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#0a1527;border:1px solid var(--line);color:var(--muted);font-size:12px;margin:0}
+.badge.strong{color:#dce7ff;background:rgba(18,33,56,.9)}
+.kpiBox{background:#0d1a2d;border:1px solid var(--line);border-radius:16px;padding:18px;min-height:118px;position:relative;overflow:hidden}
+.kpiBox:after{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:linear-gradient(180deg,var(--accent2),var(--accent))}
+.kpiBox .num{font-size:34px;font-weight:900;margin:6px 0}
 .kpiBox .lbl{font-size:13px;color:var(--muted)}
+.statusCard{padding:14px 16px}
+.statusTop{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:10px}
+.statusTitle{font-size:16px;font-weight:800}
+.statusMeta{font-size:12px;color:var(--muted)}
+.statusTrack{height:20px;border-radius:999px;background:#081426;border:1px solid var(--line);overflow:hidden;display:flex}
+.statusSeg{height:100%}
+.statusLegend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+.statusItem{padding:10px 12px;border-radius:12px;background:rgba(7,18,37,.58);border:1px solid var(--line-soft)}
+.statusItem strong{display:block;font-size:16px;line-height:1.1}
+.statusItem span{display:block;font-size:12px;color:var(--muted);margin-top:4px}
 .note{font-size:13px;color:var(--muted)}
-.badge{display:inline-block;padding:5px 10px;border-radius:999px;background:#0a1527;border:1px solid var(--line);color:var(--muted);font-size:12px;margin:3px}
 .controls{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0 18px}
 input,select,button{background:#071225;border:1px solid var(--line);color:var(--text);border-radius:10px;padding:10px 12px;font:inherit}
 button{cursor:pointer}
 button:hover{border-color:var(--accent)}
-.barRow{display:grid;grid-template-columns:minmax(160px,1.3fr) minmax(190px,2fr) 110px;gap:14px;align-items:center;margin:14px 0}
-.barTrack{height:30px;border-radius:999px;background:#081426;border:1px solid var(--line);overflow:hidden}
-.barFill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent2),var(--accent))}
+.miniPanel{background:#0d1a2d;border:1px solid var(--line-soft);border-radius:14px;padding:16px}
+.barRow{display:grid;grid-template-columns:minmax(160px,1.15fr) minmax(200px,2fr) 110px;gap:14px;align-items:center;margin:12px 0}
+.barLabel{font-weight:600}
+.barTrack{height:28px;border-radius:999px;background:#0a1526;border:1px solid var(--line);overflow:hidden;position:relative}
+.barFill{height:100%;border-radius:999px;background:#5f95e8}
 .barVal{text-align:right;font-weight:800}
 .barVal small{display:block;color:var(--muted)}
 .clickable{cursor:pointer}
 .clickable:hover{color:var(--accent)}
-.tableWrap{max-height:430px;overflow:auto;border:1px solid var(--line);border-radius:14px;background:#0b1628}
+.chartPanel{padding:16px}
+.chartPanel.compact{padding:14px}
+.chartSvg{width:100%;height:auto;display:block}
+.legend{display:grid;gap:10px;margin-top:14px}
+.legendRow{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+.swatch{width:10px;height:10px;border-radius:999px}
+.donutGrid{display:grid;grid-template-columns:minmax(180px,.9fr) minmax(240px,1.1fr);gap:14px;align-items:center}
+.donutFigure{display:flex;justify-content:center;align-items:center}
+.donutLegend{display:grid;gap:12px;align-content:start}
+.donutLegend .legendRow{padding:8px 0;border-bottom:1px solid rgba(34,56,86,.6)}
+.donutLegend .legendRow:last-child{border-bottom:0}
+.legendText strong{display:block;font-size:14px;line-height:1.25}
+.legendText span{display:block;font-size:13px;color:var(--muted);line-height:1.3}
+.legendPct{font-size:16px;font-weight:800;text-align:right}
+.chartNote{margin-top:10px;font-size:12px;color:var(--muted)}
+.compareGrid{display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:14px;margin-top:12px}
+.compareBox{background:rgba(7,18,37,.64);border:1px solid var(--line-soft);border-radius:14px;padding:16px}
+.compareBox strong{display:block;font-size:30px;line-height:1.05;margin-bottom:6px}
+.compareTitle{font-size:13px;color:var(--muted);margin-bottom:8px}
+.compareNote{font-size:12px;color:var(--muted)}
+.impactGrid{display:grid;grid-template-columns:.9fr 1.1fr;gap:14px;align-items:start}
+.impactSplit{margin-top:10px;padding:12px;border-radius:14px;background:rgba(7,18,37,.5);border:1px solid rgba(34,56,86,.7)}
+.splitHead{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:8px}
+.splitHead strong{font-size:15px}
+.splitMeta{font-size:12px;color:var(--muted)}
+.splitTrack{height:18px;border-radius:999px;background:#081426;border:1px solid var(--line);overflow:hidden;display:flex}
+.splitSeg{height:100%}
+.splitLegend{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.splitLegendItem{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.02);border:1px solid rgba(34,56,86,.65)}
+.splitLegendItem strong{display:block;font-size:24px;line-height:1.05}
+.splitLegendItem span{display:block;font-size:12px;color:var(--muted);margin-top:4px}
+.impactCategory{display:grid;grid-template-columns:minmax(120px,1fr) minmax(150px,1.3fr) 88px;gap:12px;align-items:center;margin:10px 0}
+.impactCategory .small{font-size:11px}
+.insightGrid{display:grid;grid-template-columns:.95fr 1.05fr;gap:14px;align-items:start}
+.insightCards{display:grid;grid-template-columns:repeat(3,minmax(130px,1fr));gap:10px;margin-top:8px}
+.insightCard{background:rgba(7,18,37,.64);border:1px solid var(--line-soft);border-radius:14px;padding:12px}
+.insightCard strong{display:block;font-size:24px;line-height:1.05;margin-bottom:4px}
+.insightText{font-size:13px;color:var(--muted)}
+.sectionCompact .compareNote{font-size:11px}
+.sectionCompact .barRow{margin:10px 0;grid-template-columns:minmax(120px,1fr) minmax(140px,1.4fr) 90px}
+.sectionCompact .barTrack{height:24px}
+.sectionCompact .barLabel{font-size:13px}
+.sectionCompact .small{font-size:11px}
+.sectionCompact .legendText strong{font-size:13px}
+.sectionCompact .legendText span{font-size:12px}
+.sectionCompact .legendPct{font-size:14px}
+.sectionCompact .swatch{width:9px;height:9px}
+.sectionCompact .chartNote{font-size:11px}
+.compactShare .legend{grid-template-columns:1fr 1fr;gap:8px 18px}
+.compactShare .legendRow{padding:6px 0}
+.compactShare .legendRow div:last-child{font-size:14px}
+.span-full{grid-column:1 / -1}
+.tableWrap{max-height:430px;overflow:auto;border:1px solid var(--line);border-radius:14px;background:#091426}
 table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{padding:12px 12px;border-bottom:1px solid var(--line);vertical-align:top}
-th{position:sticky;top:0;background:#142542;z-index:3;text-align:left}
+th,td{padding:12px 12px;border-bottom:1px solid rgba(34,56,86,.9);vertical-align:top}
+th{position:sticky;top:0;background:#12213a;z-index:3;text-align:left}
 td{color:#eef4ff}
+tbody tr:nth-child(even) td{background:rgba(255,255,255,.01)}
+tbody tr:hover td{background:rgba(103,169,255,.05)}
 #storeTable{min-width:1480px;table-layout:fixed}
 #storeTable th:nth-child(1),#storeTable td:nth-child(1){width:150px;font-weight:800}
 #storeTable th:nth-child(2),#storeTable td:nth-child(2){width:210px}
@@ -57,7 +137,7 @@ td.muted{color:var(--muted)}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
 .tab{padding:9px 12px;border-radius:999px;border:1px solid var(--line);background:#091426;color:var(--muted);cursor:pointer}
 .tab.active{background:linear-gradient(90deg,#1b4777,#1e806d);color:white}
-.risk{border-left:5px solid var(--warn);background:#121f32}
+.risk{border-left:5px solid var(--warn);background:rgba(18,31,50,.72)}
 .risk.high{border-left-color:var(--bad)}
 .risk.good{border-left-color:var(--good)}
 .modal{position:fixed;inset:0;background:rgba(2,7,14,.72);display:none;align-items:center;justify-content:center;z-index:99;padding:18px}
@@ -68,29 +148,108 @@ td.muted{color:var(--muted)}
 .small{font-size:12px;color:var(--muted)}
 .recon{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#071225;border-radius:12px;padding:12px;color:#dfeeff;border:1px solid var(--line)}
 .footer{color:var(--muted);font-size:12px;padding:20px 0}
-@media(max-width:1050px){.grid.kpi,.grid.three,.grid.two{grid-template-columns:1fr}.barRow{grid-template-columns:1fr}.barVal{text-align:left}h1{font-size:32px}}
+@media(max-width:1280px){.grid.overview{grid-template-columns:1fr}.heroMeta{grid-template-columns:1fr 1fr 1fr}}
+@media(max-width:1050px){.grid.kpi,.grid.three,.grid.two,.heroMeta,.compareGrid,.donutGrid,.impactGrid,.insightGrid,.insightCards,.statusLegend{grid-template-columns:1fr}.barRow{grid-template-columns:1fr}.barVal{text-align:left}h1{font-size:34px}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>June Missing Item RCA Deep-Dive — Final Dashboard</h1>
   <p><b>Purpose:</b> remove ambiguity. Category and product are now separated as <b>Family → Product → Complaint Evidence</b>. Every number shows its base.</p>
+
+  <div class="card statusCard">
+    <div class="statusTop">
+      <div>
+        <div class="statusTitle">Missing-order RCA split</div>
+        <div class="statusMeta">207 total missing-order RCA rows broken into confirmed, not confirmed, and unknown.</div>
+      </div>
+      <div class="statusMeta" id="statusSummary"></div>
+    </div>
+    <div class="statusTrack" id="missingStatusTrack"></div>
+    <div class="statusLegend" id="missingStatusLegend"></div>
+  </div>
   <div class="grid kpi" id="kpis"></div>
 
+  <div class="grid overview">
+    <div class="card chartPanel compact sectionCompact">
+      <div class="sectionHead">
+        <div>
+          <h2>1) Executive split</h2>
+          <p>Total complaint rows from the workbook, split by complaint type so you can see quality, missing, quantity, wrong item, packaging, and smaller buckets in one view.</p>
+        </div>
+        <div class="chipRow">
+          <span class="badge" id="coverageBadge"></span>
+          <span class="badge" id="reviewBadge"></span>
+        </div>
+      </div>
+      <div id="verdictDonut"></div>
+    </div>
+    <div class="card chartPanel compact sectionCompact">
+      <h2>2) Day-one operational improvement potential</h2>
+      <p>Missing Item, Wrong Item, and Quantity are the most directly reducible from store-side execution, KOT reading, packing, and final verification.</p>
+      <div class="impactGrid">
+        <div>
+          <div id="opsImpactDonut"></div>
+          <div id="opsImpactSplit"></div>
+        </div>
+        <div>
+          <div id="opsImpactBars"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card chartPanel compact">
+      <div class="sectionHead">
+        <div>
+          <h2>3) Source mix</h2>
+          <p>Where the RCA volume is coming from and how each source resolves.</p>
+        </div>
+      </div>
+      <div id="sourceMix"></div>
+    </div>
+    <div class="card chartPanel compact">
+      <div class="sectionHead">
+        <div>
+          <h2>4) Highest-risk stores</h2>
+          <p>Top stores by confirmed store-side missing-order cases. Share below is out of <b>119 confirmed store-side missing-order rows</b>, not out of 207 total missing-order rows.</p>
+        </div>
+      </div>
+      <div id="topStoresChart"></div>
+    </div>
+  </div>
+
+  <div class="card sectionCompact">
+    <div class="sectionHead">
+      <div>
+        <h2>5) Hidden operational pattern inside Quality &amp; Taste</h2>
+        <p>Quality &amp; Taste complaints are not purely food-quality issues. RCA text shows that a meaningful part of this bucket is actually operational execution leakage.</p>
+      </div>
+      <div class="chipRow">
+        <span class="badge strong" id="qtPatternBadge"></span>
+      </div>
+    </div>
+    <div class="insightGrid">
+      <div>
+        <div class="insightCards" id="qtInsightCards"></div>
+        <p class="compareNote" id="qtInsightNote"></p>
+      </div>
+      <div id="qtInsightBars"></div>
+    </div>
+  </div>
+
   <div class="card">
-    <h2>1) RCA verdict split</h2>
+    <h2>6) RCA verdict split</h2>
     <p>Base: all missing-item RCA records. <b>Confirmed</b> means RCA accepted store-side responsibility. <b>Not confirmed</b> means store evidence/RCA did not support store-side miss. <b>Unknown</b> means RCA decision was blank.</p>
     <div id="verdictBars"></div>
   </div>
 
   <div class="grid two">
     <div class="card">
-      <h2>2) Confirmed primary drivers</h2>
+      <h2>7) Confirmed primary drivers</h2>
       <p>Base: <b>119 confirmed store-side cases</b>. These are mutually exclusive, so the total equals confirmed cases.</p>
       <div id="primaryBars"></div>
     </div>
     <div class="card">
-      <h2>3) Hidden contributing factors</h2>
+      <h2>8) Hidden contributing factors</h2>
       <p>Base: evidence tags inside confirmed cases. Tags can overlap. Click any factor to see supporting complaints.</p>
       <div id="tagBars"></div>
     </div>
@@ -98,12 +257,12 @@ td.muted{color:var(--muted)}
 
   <div class="grid two">
     <div class="card">
-      <h2>4) What is getting missed? Family level</h2>
+      <h2>9) What is getting missed? Family level</h2>
       <p>Base: item-family mentions inside confirmed cases. One case can contain multiple families. <b>No product names are mixed here.</b></p>
       <div id="familyBars"></div>
     </div>
     <div class="card">
-      <h2>5) Product drill-down</h2>
+      <h2>10) Product drill-down</h2>
       <p>Choose a family. Product counts are inside that family and can include multiple products per case. Click product to view evidence.</p>
       <div class="controls"><select id="familySelect"></select></div>
       <div id="productBars"></div>
@@ -111,7 +270,15 @@ td.muted{color:var(--muted)}
   </div>
 
   <div class="card">
-    <h2>6) Store-wise analysis: verdict + driver + product + staff + cluster</h2>
+    <h2>11) Fix-in-our-hand comparison</h2>
+    <p>This compares all missing-item rows against the confirmed store-side subset, then shows how much of the complaint load sits inside the last 10 available June dates in the source file.</p>
+    <div class="compareGrid" id="fixCompareGrid"></div>
+    <div id="fixCompareBars"></div>
+    <p class="compareNote" id="fixCompareNote"></p>
+  </div>
+
+  <div class="card">
+    <h2>12) Store-wise analysis: verdict + driver + product + staff + cluster</h2>
     <div class="controls">
       <input id="storeSearch" placeholder="Search store, city, cluster, driver, product..."/>
       <select id="storeSort">
@@ -126,33 +293,33 @@ td.muted{color:var(--muted)}
   </div>
 
   <div class="card">
-    <h2>7) Store drill-down: choose any store</h2>
+    <h2>13) Store drill-down: choose any store</h2>
     <div class="controls"><select id="storeSelect"></select></div>
     <div class="grid three">
-      <div class="card"><h3>RCA verdict split</h3><p id="sdVerdictBase"></p><div id="sdVerdict"></div></div>
-      <div class="card"><h3>Confirmed: primary drivers</h3><p id="sdDriverBase"></p><div id="sdDrivers"></div></div>
-      <div class="card"><h3>Confirmed: missed families</h3><p id="sdFamilyBase"></p><div id="sdFamilies"></div></div>
+      <div class="miniPanel"><h3>RCA verdict split</h3><p id="sdVerdictBase"></p><div id="sdVerdict"></div></div>
+      <div class="miniPanel"><h3>Confirmed: primary drivers</h3><p id="sdDriverBase"></p><div id="sdDrivers"></div></div>
+      <div class="miniPanel"><h3>Confirmed: missed families</h3><p id="sdFamilyBase"></p><div id="sdFamilies"></div></div>
     </div>
     <div class="grid three">
-      <div class="card"><h3>Confirmed: missed products</h3><p id="sdProductBase"></p><div id="sdProducts"></div></div>
-      <div class="card"><h3>Confirmed: staff named</h3><p id="sdStaffBase"></p><div id="sdStaff"></div></div>
-      <div class="card"><h3>Confirmed: cluster head</h3><p id="sdClusterBase"></p><div id="sdCluster"></div></div>
+      <div class="miniPanel"><h3>Confirmed: missed products</h3><p id="sdProductBase"></p><div id="sdProducts"></div></div>
+      <div class="miniPanel"><h3>Confirmed: staff named</h3><p id="sdStaffBase"></p><div id="sdStaff"></div></div>
+      <div class="miniPanel"><h3>Confirmed: cluster head</h3><p id="sdClusterBase"></p><div id="sdCluster"></div></div>
     </div>
     <div class="grid two">
-      <div class="card"><h3>Not-confirmed drill-down</h3><p id="sdNCBase"></p><div id="sdNC"></div></div>
-      <div class="card"><h3>Unknown RCA rows</h3><p id="sdUnknownBase"></p><div id="sdUnknown"></div></div>
+      <div class="miniPanel"><h3>Not-confirmed drill-down</h3><p id="sdNCBase"></p><div id="sdNC"></div></div>
+      <div class="miniPanel"><h3>Unknown RCA rows</h3><p id="sdUnknownBase"></p><div id="sdUnknown"></div></div>
     </div>
-    <div class="card"><h3>Confirmed complaint evidence for selected store</h3><div class="tableWrap"><table id="sdConfirmedTable"></table></div></div>
-    <div class="card"><h3>Not-confirmed / unknown evidence for selected store</h3><div class="tableWrap"><table id="sdOtherTable"></table></div></div>
+    <div class="miniPanel"><h3>Confirmed complaint evidence for selected store</h3><div class="tableWrap"><table id="sdConfirmedTable"></table></div></div>
+    <div class="miniPanel"><h3>Not-confirmed / unknown evidence for selected store</h3><div class="tableWrap"><table id="sdOtherTable"></table></div></div>
   </div>
 
   <div class="card">
-    <h2>8) Customer rating, sentiment & risk impact</h2>
+    <h2>14) Customer rating, sentiment & risk impact</h2>
     <p>Base: review rows only where customer rating text is numeric. This section is intentionally evidence-backed using the exact customer statement and rating.</p>
     <div class="grid three">
-      <div class="risk high card"><h3>Short-term financial risk</h3><p id="riskCost"></p></div>
-      <div class="risk high card"><h3>Customer acquisition risk</h3><p id="riskAcq"></p></div>
-      <div class="risk card"><h3>Long-term reputation risk</h3><p id="riskRep"></p></div>
+      <div class="risk high miniPanel"><h3>Short-term financial risk</h3><p id="riskCost"></p></div>
+      <div class="risk high miniPanel"><h3>Customer acquisition risk</h3><p id="riskAcq"></p></div>
+      <div class="risk miniPanel"><h3>Long-term reputation risk</h3><p id="riskRep"></p></div>
     </div>
     <h3>Review evidence: exact customer statement + rating</h3>
     <div class="tableWrap"><table id="reviewTable"></table></div>
@@ -160,19 +327,19 @@ td.muted{color:var(--muted)}
 
   <div class="grid two">
     <div class="card">
-      <h2>9) Cluster-head accountability</h2>
+      <h2>15) Cluster-head accountability</h2>
       <p>Base: all RCA records grouped by cluster/head. Count view only; not a true defect rate because total order volume is absent.</p>
       <div class="tableWrap"><table id="clusterTable"></table></div>
     </div>
     <div class="card">
-      <h2>10) City / region split</h2>
+      <h2>16) City / region split</h2>
       <p>Base: all RCA records grouped by city. Complaint/RCA count only, not order-volume-adjusted defect rate.</p>
-      <div id="cityBars"></div>
+      <div id="cityStacked"></div>
     </div>
   </div>
 
   <div class="card">
-    <h2>11) Reconciliation notes</h2>
+    <h2>17) Reconciliation notes</h2>
     <div class="recon" id="recon"></div>
   </div>
 
@@ -196,6 +363,413 @@ const $ = id => document.getElementById(id);
 const esc = v => String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const pct = (n,d) => d ? (100*n/d).toFixed(1)+'%' : '0.0%';
 const fmt = n => (n ?? 0).toLocaleString();
+const palette = ['#67a9ff','#57d6b3','#8b7dff','#ffc96c','#ff7878','#7fe2a0','#5fd1ff'];
+const ISSUE_BASELINE = {
+  totalIssueRows: 1300,
+  last10IssueRows: 1225,
+  last10Start: '2026-06-02',
+  last10End: '2026-06-11'
+};
+const ISSUE_TYPE_COUNTS = {
+  'Quality & Taste': 487,
+  'Missing Item': 207,
+  'No Issue': 182,
+  'Quantity': 178,
+  'Wrong Item': 152,
+  'Packaging': 72,
+  'Delayed': 17,
+  'Price': 3,
+  'Tag Issue': 1,
+  'Instruction not follow': 1
+};
+const OPERATIONAL_BUCKET = {
+  categories: {
+    'Missing Item': { total: 207, confirmed: 119 },
+    'Wrong Item': { total: 152, confirmed: 65 },
+    'Quantity': { total: 178, confirmed: 10 }
+  },
+  totalOperational: 537,
+  confirmedOperational: 194
+};
+const QT_OPERATIONAL_INSIGHT = {
+  totalQualityTaste: 487,
+  confirmedQualityTaste: 63,
+  confirmedWithOperationalSignal: 47,
+  patternCounts: {
+    'Quantity / component miss': 23,
+    'Packing / QC breakdown': 21,
+    'Kitchen execution failure': 15,
+    'Wrong item / substitution': 8,
+    'Dispatch / handoff error': 7,
+    'KOT / bill read failure': 3
+  }
+};
+const QT_OPERATIONAL_PROOF = {
+  'Quantity / component miss': [
+    {Store:'Kalina', Issue_text:"The rice was very salty and the chicken was very bad. I didn't even eat one piece of chicken.", RCA:'The order was not made according to SOP.'},
+    {Store:'Ravet', Issue_text:'Mint chutney and sauce were not given.', RCA:'Store execution issue on sauce portion.'},
+    {Store:'DLF Phase 5', Issue_text:'Little chunks of meat were tossed into the gravy and some portions felt rubbery.', RCA:'Staff not aware of SOP of mutton bhuna.'}
+  ],
+  'Packing / QC breakdown': [
+    {Store:'Sector 85', Issue_text:'There was no chicken inside, no filling inside the roll.', RCA:'Yes, genuine complaint.'},
+    {Store:'Vashi', Issue_text:'Did not receive my extra raita. Request refund.', RCA:'The extra raita was not given in the order.'},
+    {Store:'Dwarka Mor', Issue_text:'Roll was too dry inside without mayonnaise, only dry chicken and onion.', RCA:'Outlet side faulty.'}
+  ],
+  'Kitchen execution failure': [
+    {Store:'Kalyan', Issue_text:'Taste and quality issue with raita.', RCA:'The customer was provided expired raita by the store, showing FIFO failure.'},
+    {Store:'Taloja', Issue_text:'Uncooked food, smelly chicken galouti kebab.', RCA:'Order was not made properly.'},
+    {Store:'Salunke Vihar', Issue_text:'Stale food in paneer tikka and soya chaap.', RCA:'Did not follow SOP.'}
+  ],
+  'Wrong item / substitution': [
+    {Store:'Alpha 1', Issue_text:'Very basic, not worth it.', RCA:'There was not proper SOP followed by staff.'},
+    {Store:'Hinjewadi Phase 3', Issue_text:'Received 1 rumali roti instead of 2.', RCA:'One rumali roti was given; staff did not read bill properly.'},
+    {Store:'Indirapuram', Issue_text:'Received non-veg biryani instead of vegetarian biryani.', RCA:'Yes, staff did not read KOT properly and made non-veg instead of veg.'}
+  ],
+  'Dispatch / handoff error': [
+    {Store:'Goregaon East', Issue_text:'Strong particles present in the biryani.', RCA:'Heating time was 3 minutes, so the chicken became hard.'},
+    {Store:'Talegaon', Issue_text:'Veg dum biryani order fulfillment issue.', RCA:'Incorrect item dispatched due to mix-up in the packing area.'},
+    {Store:'Versova', Issue_text:'Found a piece of paper in the food.', RCA:'Paper contamination entered the gravy during preparation and handling.'}
+  ],
+  'KOT / bill read failure': [
+    {Store:'Hinjewadi Phase 3', Issue_text:'Received 1 rumali roti instead of 2.', RCA:'Staff did not read bill properly.'},
+    {Store:'Indirapuram', Issue_text:'Received non-veg biryani instead of vegetarian biryani.', RCA:'Staff did not read KOT properly and made the wrong biryani.'},
+    {Store:'Majiwada', Issue_text:'Regular special meal packaging issue in a Zomato special meal order.', RCA:'Staff got confused and served the regular special meal packaging.'}
+  ]
+};
+
+function topEntries(obj, limit){
+  return Object.entries(obj||{}).map(([name,value])=>({name,value:+value||0})).sort((a,b)=>b.value-a.value).slice(0,limit);
+}
+function polar(cx, cy, r, angle){
+  const rad = (angle-90) * Math.PI / 180;
+  return {x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad)};
+}
+function arcPath(cx, cy, rOuter, rInner, startAngle, endAngle){
+  const startOuter = polar(cx,cy,rOuter,endAngle);
+  const endOuter = polar(cx,cy,rOuter,startAngle);
+  const startInner = polar(cx,cy,rInner,startAngle);
+  const endInner = polar(cx,cy,rInner,endAngle);
+  const large = endAngle - startAngle > 180 ? 1 : 0;
+  return `M ${startOuter.x} ${startOuter.y} A ${rOuter} ${rOuter} 0 ${large} 0 ${endOuter.x} ${endOuter.y} L ${startInner.x} ${startInner.y} A ${rInner} ${rInner} 0 ${large} 1 ${endInner.x} ${endInner.y} Z`;
+}
+function renderVerdictDonut(){
+  const entries = topEntries(ISSUE_TYPE_COUNTS, 10);
+  const total = entries.reduce((sum, e) => sum + e.value, 0);
+  let angle = 0;
+  const arcs = entries.map((entry, idx)=>{
+    const span = total ? (entry.value/total)*360 : 0;
+    const path = arcPath(110,110,86,50,angle,angle+span);
+    const part = `<path d="${path}" fill="${palette[idx % palette.length]}" />`;
+    angle += span;
+    return part;
+  }).join('');
+  $('verdictDonut').innerHTML = `
+    <div class="donutGrid compactShare">
+      <div class="donutFigure">
+        <svg class="chartSvg" viewBox="0 0 320 320" role="img" aria-label="Complaint share donut chart">
+          <g transform="translate(40 40)">
+            ${arcs}
+            <circle cx="110" cy="110" r="46" fill="#0b1628"></circle>
+            <text x="110" y="102" text-anchor="middle" fill="#95a7c5" font-size="12">Issue-coded</text>
+            <text x="110" y="130" text-anchor="middle" fill="#eef4ff" font-size="28" font-weight="800">${fmt(total)}</text>
+          </g>
+        </svg>
+      </div>
+      <div class="donutLegend">
+        ${entries.map((entry, idx)=>`
+          <div class="legendRow">
+            <span class="swatch" style="background:${palette[idx % palette.length]}"></span>
+            <div class="legendText">
+              <strong>${esc(entry.name)}</strong>
+              <span>${fmt(entry.value)} complaints</span>
+            </div>
+            <div class="legendPct">${pct(entry.value,total)}</div>
+          </div>
+        `).join('')}
+        <div class="chartNote">Share of complaint categories across all issue-coded complaint rows from the source workbook.</div>
+      </div>
+    </div>`;
+}
+function renderMissingStatus(){
+  const total = DATA.kpis.total_records;
+  const items = [
+    {name:'Confirmed store-side', value: DATA.kpis.confirmed, color: palette[1]},
+    {name:'Not confirmed', value: DATA.kpis.not_confirmed, color: palette[0]},
+    {name:'Unknown RCA', value: DATA.kpis.unknown, color: palette[4]}
+  ];
+  $('statusSummary').textContent = `${fmt(total)} missing-order RCA rows`;
+  $('missingStatusTrack').innerHTML = items.map(item=>`
+    <div class="statusSeg" style="width:${pct(item.value, total)};background:${item.color}"></div>
+  `).join('');
+  $('missingStatusLegend').innerHTML = items.map(item=>`
+    <div class="statusItem">
+      <strong style="color:${item.color}">${fmt(item.value)} • ${pct(item.value, total)}</strong>
+      <span>${esc(item.name)}</span>
+    </div>
+  `).join('');
+}
+function renderSourceMix(){
+  const rows = DATA.source_counts || [];
+  const max = Math.max(1,...rows.map(r=>(+r['Confirmed store-side']||0)+(+r['Not confirmed store-side']||0)+(+r['Unknown RCA']||0)));
+  $('sourceMix').innerHTML = `
+    <svg class="chartSvg" viewBox="0 0 520 250" role="img" aria-label="Source mix stacked bars">
+      ${rows.map((row, idx)=>{
+        const y = 18 + idx*62;
+        const total = (+row['Confirmed store-side']||0)+(+row['Not confirmed store-side']||0)+(+row['Unknown RCA']||0);
+        const width = total/max*310;
+        const c1 = width*(+row['Confirmed store-side']||0)/Math.max(total,1);
+        const c2 = width*(+row['Not confirmed store-side']||0)/Math.max(total,1);
+        const c3 = width*(+row['Unknown RCA']||0)/Math.max(total,1);
+        return `
+          <text x="0" y="${y+15}" fill="#eef4ff" font-size="13" font-weight="700">${esc(row.Source)}</text>
+          <rect x="0" y="${y+27}" width="310" height="16" rx="8" fill="#081426"></rect>
+          <rect x="0" y="${y+27}" width="${c1}" height="16" rx="8" fill="${palette[1]}"></rect>
+          <rect x="${c1}" y="${y+27}" width="${c2}" height="16" fill="${palette[0]}"></rect>
+          <rect x="${c1+c2}" y="${y+27}" width="${c3}" height="16" rx="8" fill="${palette[4]}"></rect>
+          <text x="330" y="${y+40}" fill="#eef4ff" font-size="13" font-weight="700">${fmt(total)}</text>
+          <text x="374" y="${y+40}" fill="#95a7c5" font-size="12">${pct(row['Confirmed store-side'], total)} confirmed</text>
+        `;
+      }).join('')}
+      <g transform="translate(0 218)">
+        <circle cx="6" cy="6" r="5" fill="${palette[1]}"></circle><text x="18" y="10" fill="#95a7c5" font-size="12">Confirmed</text>
+        <circle cx="114" cy="6" r="5" fill="${palette[0]}"></circle><text x="126" y="10" fill="#95a7c5" font-size="12">Not confirmed</text>
+        <circle cx="252" cy="6" r="5" fill="${palette[4]}"></circle><text x="264" y="10" fill="#95a7c5" font-size="12">Unknown</text>
+      </g>
+    </svg>`;
+}
+function renderTopStores(){
+  const rows = [...DATA.store_summary].sort((a,b)=>b.confirmed-a.confirmed).slice(0,8);
+  const max = Math.max(1,...rows.map(r=>+r.confirmed||0));
+  const confirmedBase = DATA.kpis.confirmed;
+  $('topStoresChart').innerHTML = rows.map((row, idx)=>{
+    const width = Math.max(8, row.confirmed/max*100);
+    return `<div class="barRow">
+      <div class="barLabel">${idx+1}. ${esc(row.Store)}<div class="small">${esc(row.City)} | total ${fmt(row.total)} | confirmed ${fmt(row.confirmed)} | ${esc(row.Top_driver)}</div></div>
+      <div class="barTrack"><div class="barFill" style="width:${width}%"></div></div>
+      <div class="barVal">${fmt(row.confirmed)}<small>${pct(row.confirmed, confirmedBase)} of 119</small></div>
+    </div>`;
+  }).join('');
+}
+function renderCityStacked(){
+  const rows = DATA.city_counts || [];
+  const max = Math.max(1,...rows.map(r=>+r.total||0));
+  $('cityStacked').innerHTML = rows.map(row=>{
+    const total = +row.total||0;
+    const confirmed = total ? row.confirmed/total*100 : 0;
+    const notConfirmed = total ? row.not_confirmed/total*100 : 0;
+    const unknown = total ? row.unknown/total*100 : 0;
+    return `
+      <div class="barRow">
+        <div class="barLabel">${esc(row.City)}<div class="small">${fmt(total)} total RCA rows</div></div>
+        <div class="barTrack">
+          <div style="display:flex;height:100%">
+            <div style="width:${confirmed}%;background:${palette[1]}"></div>
+            <div style="width:${notConfirmed}%;background:${palette[0]}"></div>
+            <div style="width:${unknown}%;background:${palette[4]}"></div>
+          </div>
+        </div>
+        <div class="barVal">${pct(row.confirmed,total)}<small>${fmt(row.confirmed)} confirmed</small></div>
+      </div>`;
+  }).join('') + `<div class="chipRow"><span class="badge">Green = confirmed</span><span class="badge">Blue = not confirmed</span><span class="badge">Red = unknown</span></div>`;
+}
+function renderIssueTypeDonut(){
+  const entries = topEntries(ISSUE_TYPE_COUNTS, 10);
+  const total = entries.reduce((sum, e) => sum + e.value, 0);
+  let angle = 0;
+  const arcs = entries.map((entry, idx) => {
+    const span = total ? (entry.value / total) * 360 : 0;
+    const path = arcPath(130, 130, 96, 56, angle, angle + span);
+    angle += span;
+    return `<path d="${path}" fill="${palette[idx % palette.length]}"></path>`;
+  }).join('');
+  $('issueTypeDonut').innerHTML = `
+    <div class="donutFigure">
+      <svg class="chartSvg" viewBox="0 0 220 220" role="img" aria-label="Complaint type share donut chart">
+        <g transform="translate(-20 -20)">
+          ${arcs}
+          <circle cx="130" cy="130" r="52" fill="#0b1628"></circle>
+          <text x="130" y="120" text-anchor="middle" fill="#95a7c5" font-size="12">Issue-coded</text>
+          <text x="130" y="146" text-anchor="middle" fill="#eef4ff" font-size="28" font-weight="800">${fmt(total)}</text>
+        </g>
+      </svg>
+    </div>`;
+  $('issueTypeLegend').innerHTML = entries.map((entry, idx) => `
+    <div class="legendRow">
+      <span class="swatch" style="background:${palette[idx % palette.length]}"></span>
+      <div>
+        <div style="font-weight:700">${esc(entry.name)}</div>
+        <div class="small">${fmt(entry.value)} complaints</div>
+      </div>
+      <div style="font-weight:800">${pct(entry.value, total)}</div>
+    </div>
+  `).join('');
+}
+function renderOperationalImpact(){
+  const total = ISSUE_BASELINE.totalIssueRows;
+  const opsTotal = OPERATIONAL_BUCKET.totalOperational;
+  const opsConfirmed = OPERATIONAL_BUCKET.confirmedOperational;
+  const opsUnconfirmed = opsTotal - opsConfirmed;
+  const entries = [
+    { name: 'Operationally reducible themes', value: opsTotal, color: palette[1] },
+    { name: 'Other complaint themes', value: total - opsTotal, color: palette[0] }
+  ];
+  let angle = 0;
+  const arcs = entries.map(entry => {
+    const span = total ? (entry.value / total) * 360 : 0;
+    const path = arcPath(110,110,86,50,angle,angle+span);
+    angle += span;
+    return `<path d="${path}" fill="${entry.color}"></path>`;
+  }).join('');
+  $('opsImpactDonut').innerHTML = `
+    <div class="donutGrid">
+      <div class="donutFigure">
+        <svg class="chartSvg" viewBox="0 0 260 260" role="img" aria-label="Operational improvement potential donut chart">
+          <g transform="translate(20 20)">
+            ${arcs}
+            <circle cx="110" cy="110" r="46" fill="#0b1628"></circle>
+            <text x="110" y="98" text-anchor="middle" fill="#95a7c5" font-size="12">Addressable</text>
+            <text x="110" y="126" text-anchor="middle" fill="#eef4ff" font-size="28" font-weight="800">${pct(opsTotal, total)}</text>
+          </g>
+        </svg>
+      </div>
+      <div class="donutLegend">
+        ${entries.map(entry=>`
+          <div class="legendRow">
+            <span class="swatch" style="background:${entry.color}"></span>
+            <div class="legendText">
+              <strong>${esc(entry.name)}</strong>
+              <span>${fmt(entry.value)} of ${fmt(total)} issue-coded complaint rows</span>
+            </div>
+            <div class="legendPct">${pct(entry.value, total)}</div>
+          </div>
+        `).join('')}
+        <div class="chartNote">Combined bucket = Missing Item + Wrong Item + Quantity.</div>
+      </div>
+    </div>`;
+  const categories = Object.entries(OPERATIONAL_BUCKET.categories).map(([name,vals])=>({
+    name,
+    total: vals.total,
+    confirmed: vals.confirmed
+  }));
+  const max = Math.max(1, ...categories.map(c=>c.total));
+  $('opsImpactBars').innerHTML = categories.map((cat, idx)=>{
+    const confirmedWidth = cat.total ? (cat.confirmed / cat.total) * 100 : 0;
+    return `
+    <div class="impactCategory">
+      <div class="barLabel">${esc(cat.name)}<div class="small">${fmt(cat.confirmed)} confirmed | ${fmt(cat.total - cat.confirmed)} other</div></div>
+      <div class="barTrack">
+        <div style="display:flex;height:100%">
+          <div class="splitSeg" style="width:${confirmedWidth}%;background:${palette[1]}"></div>
+          <div class="splitSeg" style="width:${100-confirmedWidth}%;background:rgba(103,169,255,.22)"></div>
+        </div>
+      </div>
+      <div class="barVal">${fmt(cat.total)}<small>${pct(cat.total, opsTotal)} of bucket</small></div>
+    </div>`;
+  }).join('');
+  $('opsImpactSplit').innerHTML = `
+    <div class="impactSplit">
+      <div class="splitHead">
+        <div>
+          <strong>537 operational bucket split</strong>
+          <div class="splitMeta">Why it does not equal only 194</div>
+        </div>
+        <div class="legendPct">${pct(opsConfirmed, opsTotal)} confirmed</div>
+      </div>
+      <div class="splitTrack">
+        <div class="splitSeg" style="width:${pct(opsConfirmed, opsTotal)};background:${palette[1]}"></div>
+        <div class="splitSeg" style="width:${pct(opsUnconfirmed, opsTotal)};background:rgba(103,169,255,.28)"></div>
+      </div>
+      <div class="splitLegend">
+        <div class="splitLegendItem">
+          <strong>${fmt(opsConfirmed)}</strong>
+          <span>confirmed store-side</span>
+        </div>
+        <div class="splitLegendItem">
+          <strong>${fmt(opsUnconfirmed)}</strong>
+          <span>not confirmed / unknown</span>
+        </div>
+      </div>
+    </div>`;
+  
+}
+function renderQualityOperationalInsight(){
+  const qt = QT_OPERATIONAL_INSIGHT;
+  $('qtPatternBadge').textContent = `${pct(qt.confirmedWithOperationalSignal, qt.confirmedQualityTaste)} of confirmed Quality & Taste RCAs carry operational signals`;
+  $('qtInsightCards').innerHTML = [
+    {title:'Quality & Taste rows', value: fmt(qt.totalQualityTaste), text:`${pct(qt.totalQualityTaste, ISSUE_BASELINE.totalIssueRows)} of all complaint rows`},
+    {title:'Confirmed store-side', value: fmt(qt.confirmedQualityTaste), text:`${pct(qt.confirmedQualityTaste, qt.totalQualityTaste)} of Quality & Taste rows`},
+    {title:'Operationally linked', value: fmt(qt.confirmedWithOperationalSignal), text:`${pct(qt.confirmedWithOperationalSignal, qt.confirmedQualityTaste)} of confirmed Quality & Taste`},
+  ].map(card=>`
+    <div class="insightCard">
+      <div class="compareTitle">${esc(card.title)}</div>
+      <strong>${esc(card.value)}</strong>
+      <div class="insightText">${esc(card.text)}</div>
+    </div>
+  `).join('');
+  const max = Math.max(...Object.values(qt.patternCounts), 1);
+  $('qtInsightBars').innerHTML = Object.entries(qt.patternCounts).map(([name, value], idx)=>`
+    <div class="barRow clickable" onclick="showQtPattern('${esc(name).replace(/'/g,"\\'")}')">
+      <div class="barLabel">${esc(name)}</div>
+      <div class="barTrack"><div class="barFill" style="width:${Math.max(4, value/max*100)}%;background:linear-gradient(90deg, ${palette[idx % palette.length]}, ${palette[(idx+1)%palette.length]})"></div></div>
+      <div class="barVal">${fmt(value)}<small>${pct(value, qt.confirmedQualityTaste)} of confirmed Q&amp;T</small></div>
+    </div>
+  `).join('');
+  $('qtInsightNote').textContent = `Click any pattern bar to open sample proof rows. Many complaints logged under Quality & Taste are actually execution defects in disguise.`;
+}
+function parseUsDate(text){
+  const m = String(text || '').match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if(!m) return null;
+  return new Date(Number(m[3]), Number(m[1]) - 1, Number(m[2]));
+}
+function renderFixComparison(){
+  const allMissing = DATA.records.length;
+  const confirmedMissing = DATA.records.filter(r=>r.Verdict==='Confirmed store-side').length;
+  const last10Rows = DATA.records.filter(r=>{
+    const d = parseUsDate(r.Date);
+    return d && d >= new Date('2026-06-02') && d <= new Date('2026-06-11');
+  });
+  const last10Confirmed = last10Rows.filter(r=>r.Verdict==='Confirmed store-side');
+  const cards = [
+    {
+      title: 'All missing-item RCA rows',
+      value: fmt(allMissing),
+      sub: `${pct(allMissing, ISSUE_BASELINE.totalIssueRows)} of all issue-coded complaint rows`
+    },
+    {
+      title: 'Confirmed store-side missing rows',
+      value: fmt(confirmedMissing),
+      sub: `${pct(confirmedMissing, allMissing)} of missing-item rows are directly fixable`
+    },
+    {
+      title: 'Last 10 available June days',
+      value: fmt(last10Rows.length),
+      sub: `${pct(last10Rows.length, allMissing)} of all missing-item rows fall in this window`
+    },
+    {
+      title: 'Confirmed in last 10 available June days',
+      value: fmt(last10Confirmed.length),
+      sub: `${pct(last10Confirmed.length, ISSUE_BASELINE.last10IssueRows)} potential complaint reduction in-window`
+    }
+  ];
+  $('fixCompareGrid').innerHTML = cards.map(card=>`
+    <div class="compareBox">
+      <div class="compareTitle">${esc(card.title)}</div>
+      <strong>${esc(card.value)}</strong>
+      <div class="compareNote">${esc(card.sub)}</div>
+    </div>`).join('');
+  $('fixCompareBars').innerHTML = [
+    {name:'Missing item share of all issue-coded complaints', value:allMissing, base:ISSUE_BASELINE.totalIssueRows},
+    {name:'Confirmed store-side share of all issue-coded complaints', value:confirmedMissing, base:ISSUE_BASELINE.totalIssueRows},
+    {name:'Last 10 available June days: missing-item share of all issue-coded complaints', value:last10Rows.length, base:ISSUE_BASELINE.last10IssueRows},
+    {name:'Last 10 available June days: confirmed store-side share of all issue-coded complaints', value:last10Confirmed.length, base:ISSUE_BASELINE.last10IssueRows}
+  ].map(item=>`
+    <div class="barRow">
+      <div class="barLabel">${esc(item.name)}</div>
+      <div class="barTrack"><div class="barFill" style="width:${Math.max(2, (item.value / item.base) * 100)}%"></div></div>
+      <div class="barVal">${fmt(item.value)}/${fmt(item.base)}<small>${pct(item.value, item.base)}</small></div>
+    </div>`).join('');
+  $('fixCompareNote').textContent = `Source note: the workbook's June dates were stored ambiguously in Excel. This comparison normalizes the file to intended dates from June 2, 2026 through June 11, 2026. There are no June 21-30 rows in the source file. If confirmed missing-item cases are eliminated, complaint volume would reduce by ${pct(confirmedMissing, ISSUE_BASELINE.totalIssueRows)} across all issue-coded rows in the file, and by ${pct(last10Confirmed.length, ISSUE_BASELINE.last10IssueRows)} inside the last 10 available June dates.`;
+}
 
 function rowsHtml(rows, cols){
   return '<thead><tr>'+cols.map(c=>`<th>${esc(c.label||c.key)}</th>`).join('')+'</tr></thead><tbody>'+
@@ -213,23 +787,23 @@ function barList(container, obj, base, opts={}){
     const width = Math.max(2, e.value/max*100);
     const click = opts.onClick ? ` onclick="${opts.onClick.replace('__NAME__', esc(String(e.name)).replace(/'/g,"\\'"))}"` : '';
     return `<div class="barRow ${opts.onClick?'clickable':''}"${click}>
-      <div>${esc(e.name)}</div><div class="barTrack"><div class="barFill" style="width:${width}%"></div></div>
+      <div class="barLabel">${esc(e.name)}</div><div class="barTrack"><div class="barFill" style="width:${width}%"></div></div>
       <div class="barVal">${fmt(e.value)}/${fmt(base)}<small>${pct(e.value,base)}</small></div></div>`;
   }).join('');
 }
 function evidenceRows(filterFn){
   return DATA.records.filter(filterFn);
 }
-function openModal(title, sub, rows){
+function openModal(title, sub, rows, cols){
   $('modalTitle').textContent = title;
   $('modalSub').textContent = sub || '';
-  const cols=[
+  const defaultCols=[
     {key:'Date_fmt',label:'Date'}, {key:'Store'}, {key:'City'}, {key:'Channel'}, {key:'Source'},
     {key:'Rating', fn:r=>r.Ratings || ''}, {key:'Verdict'}, {key:'Primary_driver',label:'Driver'},
     {key:'Staff'}, {key:'Issues',label:'Customer / issue text'},
     {key:'Identification of root cause',label:'RCA statement'}
   ];
-  $('modalTable').innerHTML = rowsHtml(rows, cols);
+  $('modalTable').innerHTML = rowsHtml(rows, cols || defaultCols);
   $('modal').classList.add('show');
 }
 function closeModal(){ $('modal').classList.remove('show'); }
@@ -245,18 +819,37 @@ function showProduct(name){
   const rows=evidenceRows(r=>r.Verdict==='Confirmed store-side' && (r.Products||[]).includes(name));
   openModal('Product evidence: '+name, `${rows.length} confirmed cases mention this product.`, rows);
 }
+function showQtPattern(name){
+  const rows = QT_OPERATIONAL_PROOF[name] || [];
+  const cols = [
+    {key:'Store'},
+    {key:'Issue_text', label:'Customer / issue text'},
+    {key:'RCA', label:'RCA proof'}
+  ];
+  openModal('Proof: ' + name, `${rows.length} sample RCA-backed examples from Quality & Taste rows.`, rows, cols);
+}
 
 function init(){
   const k=DATA.kpis;
+
+  $('coverageBadge').textContent = `${fmt(k.unique_orders)} unique orders across ${fmt(k.stores)} stores`;
+  $('reviewBadge').textContent = `${fmt(k.review_1star)} one-star reviews observed`;
+  renderMissingStatus();
   $('kpis').innerHTML = [
-    ['Total RCA records',k.total_records,'Base: all missing-item records'],
-    ['Confirmed store-side',k.confirmed,'RCA accepted store-side miss'],
-    ['Not confirmed',k.not_confirmed,'RCA/store evidence did not support store-side miss'],
-    ['Unknown RCA',k.unknown,'yes/no RCA decision blank'],
-    ['Review avg rating',k.review_avg+' / 5',`${k.reviews} numeric review rows`],
-    ['Known refund exposure','₹'+fmt(k.refund_known_total),'Only rows where refund amount was filled']
+    ['Total missing-order RCA rows',k.total_records,'Base: all missing-order RCA records'],
+    ['Confirmed missing-order rows',k.confirmed,'RCA accepted store-side miss'],
+    ['Not-confirmed missing-order rows',k.not_confirmed,'RCA/store evidence did not support store-side miss'],
+    ['Unknown missing-order RCA',k.unknown,'RCA decision blank'],
+    ['Missing-order review avg',k.review_avg+' / 5',`${k.reviews} numeric review rows`],
+    ['Known missing-order refund exposure','₹'+fmt(k.refund_known_total),'Only missing-order rows where refund amount was filled']
   ].map(x=>`<div class="kpiBox"><div class="lbl">${x[0]}</div><div class="num">${x[1]}</div><div class="lbl">${x[2]}</div></div>`).join('');
 
+  renderVerdictDonut();
+  renderSourceMix();
+  renderTopStores();
+  renderOperationalImpact();
+  renderQualityOperationalInsight();
+  renderFixComparison();
   barList($('verdictBars'), DATA.verdict_counts, k.total_records);
   barList($('primaryBars'), DATA.primary_counts, k.confirmed);
   barList($('tagBars'), DATA.cause_tag_counts, k.confirmed, {onClick:"showTag('__NAME__')"});
@@ -280,7 +873,7 @@ function init(){
   renderRisk();
   renderReviewTable();
   renderClusterTable();
-  barList($('cityBars'), DATA.city_counts.map(r=>({name:r.City, value:r.confirmed})), k.confirmed);
+  renderCityStacked();
   $('recon').innerHTML = `RCA record reconciliation: ${k.confirmed} confirmed + ${k.not_confirmed} not confirmed + ${k.unknown} unknown = ${k.total_records} total records.<br>
 Primary drivers are mutually exclusive: total must equal ${k.confirmed} confirmed cases.<br>
 Family and product counts are mentions, not mutually exclusive. A single complaint can contain multiple missed items.<br>
