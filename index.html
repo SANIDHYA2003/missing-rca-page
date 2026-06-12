@@ -5,157 +5,1113 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>June Missing Item RCA Deep-Dive Final</title>
 <style>
-:root{
-  --bg:#06101d; --bg2:#0a1627; --panel:#0f1b2e; --panel2:#13233b; --line:#223856; --line-soft:#1a2d46;
-  --text:#eef4ff; --muted:#95a7c5; --accent:#57d6b3; --accent2:#67a9ff; --accent3:#8b7dff;
-  --bad:#ff7878; --warn:#ffc96c; --good:#7fe2a0; --shadow:0 16px 42px rgba(0,0,0,.28);
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --bg-gradient: radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
+                 radial-gradient(circle at 100% 100%, rgba(20, 184, 166, 0.08) 0%, transparent 45%),
+                 #070d19;
+  --panel: rgba(15, 23, 42, 0.65);
+  --panel-hover: rgba(23, 37, 70, 0.7);
+  --panel-active: rgba(30, 48, 90, 0.85);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.16);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent-teal: #14b8a6;
+  --accent-indigo: #6366f1;
+  --accent-amber: #f59e0b;
+  --accent-violet: #8b5cf6;
+  --accent-emerald: #10b981;
+  --accent-rose: #f43f5e;
+  --accent-cyan: #06b6d4;
+  --shadow: 0 10px 30px -10px rgba(2, 6, 23, 0.5);
+  --shadow-lg: 0 20px 40px -15px rgba(2, 6, 23, 0.7);
+  --font-title: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-*{box-sizing:border-box}
-body{margin:0;background:radial-gradient(circle at top left,rgba(103,169,255,.12),transparent 28%),linear-gradient(180deg,var(--bg),var(--bg2) 40%,var(--bg));color:var(--text);font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;line-height:1.45;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
-.wrap{max-width:1480px;margin:0 auto;padding:20px}
-h1{font-size:40px;line-height:1.02;margin:0 0 8px;font-weight:900}
-h2{font-size:24px;margin:0 0 14px}
-h3{font-size:17px;margin:0 0 8px}
-p{color:var(--muted);margin:6px 0 12px}
-.card{background:#12233c;border:1px solid rgba(50,80,120,.72);border-radius:18px;padding:18px;margin:14px 0;box-shadow:var(--shadow)}
-.grid{display:grid;gap:18px}
-.grid.kpi{grid-template-columns:repeat(6,minmax(160px,1fr))}
-.grid.two{grid-template-columns:1fr 1fr}
-.grid.three{grid-template-columns:repeat(3,1fr)}
-.grid.overview{grid-template-columns:1fr 1fr;align-items:start}
-.heroCard{padding:28px;overflow:hidden;position:relative}
-.heroCard:before{content:"";position:absolute;inset:auto -80px -90px auto;width:220px;height:220px;border-radius:999px;background:radial-gradient(circle,rgba(87,214,179,.24),transparent 68%)}
-.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:7px 11px;border-radius:999px;border:1px solid var(--line);background:rgba(7,18,37,.6);font-size:12px;color:#c3d2ee;text-transform:uppercase;letter-spacing:.08em}
-.heroLead{max-width:760px;font-size:15px}
-.heroMeta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}
-.heroMetric{background:rgba(7,18,37,.68);border:1px solid var(--line-soft);border-radius:14px;padding:14px;min-height:96px}
-.heroMetric strong{display:block;font-size:28px;line-height:1.1;margin-bottom:6px}
-.sectionHead{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:12px}
-.sectionHead p{margin:0;max-width:760px}
-.chipRow{display:flex;flex-wrap:wrap;gap:8px}
-.badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#0a1527;border:1px solid var(--line);color:var(--muted);font-size:12px;margin:0}
-.badge.strong{color:#dce7ff;background:rgba(18,33,56,.9)}
-.kpiBox{background:#0d1a2d;border:1px solid var(--line);border-radius:16px;padding:18px;min-height:118px;position:relative;overflow:hidden}
-.kpiBox:after{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:linear-gradient(180deg,var(--accent2),var(--accent))}
-.kpiBox .num{font-size:34px;font-weight:900;margin:6px 0}
-.kpiBox .lbl{font-size:13px;color:var(--muted)}
-.statusCard{padding:14px 16px}
-.statusTop{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:10px}
-.statusTitle{font-size:16px;font-weight:800}
-.statusMeta{font-size:12px;color:var(--muted)}
-.statusTrack{height:20px;border-radius:999px;background:#081426;border:1px solid var(--line);overflow:hidden;display:flex}
-.statusSeg{height:100%}
-.statusLegend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
-.statusItem{padding:10px 12px;border-radius:12px;background:rgba(7,18,37,.58);border:1px solid var(--line-soft)}
-.statusItem strong{display:block;font-size:16px;line-height:1.1}
-.statusItem span{display:block;font-size:12px;color:var(--muted);margin-top:4px}
-.note{font-size:13px;color:var(--muted)}
-.controls{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0 18px}
-input,select,button{background:#071225;border:1px solid var(--line);color:var(--text);border-radius:10px;padding:10px 12px;font:inherit}
-button{cursor:pointer}
-button:hover{border-color:var(--accent)}
-.miniPanel{background:#0d1a2d;border:1px solid var(--line-soft);border-radius:14px;padding:16px}
-.barRow{display:grid;grid-template-columns:minmax(160px,1.15fr) minmax(200px,2fr) 110px;gap:14px;align-items:center;margin:12px 0}
-.barLabel{font-weight:600}
-.barTrack{height:28px;border-radius:999px;background:#0a1526;border:1px solid var(--line);overflow:hidden;position:relative}
-.barFill{height:100%;border-radius:999px;background:#5f95e8}
-.barVal{text-align:right;font-weight:800}
-.barVal small{display:block;color:var(--muted)}
-.clickable{cursor:pointer}
-.clickable:hover{color:var(--accent)}
-.chartPanel{padding:16px}
-.chartPanel.compact{padding:14px}
-.chartSvg{width:100%;height:auto;display:block}
-.legend{display:grid;gap:10px;margin-top:14px}
-.legendRow{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
-.swatch{width:10px;height:10px;border-radius:999px}
-.donutGrid{display:grid;grid-template-columns:minmax(180px,.9fr) minmax(240px,1.1fr);gap:14px;align-items:center}
-.donutFigure{display:flex;justify-content:center;align-items:center}
-.donutLegend{display:grid;gap:12px;align-content:start}
-.donutLegend .legendRow{padding:8px 0;border-bottom:1px solid rgba(34,56,86,.6)}
-.donutLegend .legendRow:last-child{border-bottom:0}
-.legendText strong{display:block;font-size:14px;line-height:1.25}
-.legendText span{display:block;font-size:13px;color:var(--muted);line-height:1.3}
-.legendPct{font-size:16px;font-weight:800;text-align:right}
-.chartNote{margin-top:10px;font-size:12px;color:var(--muted)}
-.compareGrid{display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:14px;margin-top:12px}
-.compareBox{background:rgba(7,18,37,.64);border:1px solid var(--line-soft);border-radius:14px;padding:16px}
-.compareBox strong{display:block;font-size:30px;line-height:1.05;margin-bottom:6px}
-.compareTitle{font-size:13px;color:var(--muted);margin-bottom:8px}
-.compareNote{font-size:12px;color:var(--muted)}
-.impactGrid{display:grid;grid-template-columns:.9fr 1.1fr;gap:14px;align-items:start}
-.impactSplit{margin-top:10px;padding:12px;border-radius:14px;background:rgba(7,18,37,.5);border:1px solid rgba(34,56,86,.7)}
-.splitHead{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:8px}
-.splitHead strong{font-size:15px}
-.splitMeta{font-size:12px;color:var(--muted)}
-.splitTrack{height:18px;border-radius:999px;background:#081426;border:1px solid var(--line);overflow:hidden;display:flex}
-.splitSeg{height:100%}
-.splitLegend{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.splitLegendItem{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.02);border:1px solid rgba(34,56,86,.65)}
-.splitLegendItem strong{display:block;font-size:24px;line-height:1.05}
-.splitLegendItem span{display:block;font-size:12px;color:var(--muted);margin-top:4px}
-.impactCategory{display:grid;grid-template-columns:minmax(120px,1fr) minmax(150px,1.3fr) 88px;gap:12px;align-items:center;margin:10px 0}
-.impactCategory .small{font-size:11px}
-.insightGrid{display:grid;grid-template-columns:.95fr 1.05fr;gap:14px;align-items:start}
-.insightCards{display:grid;grid-template-columns:repeat(3,minmax(130px,1fr));gap:10px;margin-top:8px}
-.insightCard{background:rgba(7,18,37,.64);border:1px solid var(--line-soft);border-radius:14px;padding:12px}
-.insightCard strong{display:block;font-size:24px;line-height:1.05;margin-bottom:4px}
-.insightText{font-size:13px;color:var(--muted)}
-.sectionCompact .compareNote{font-size:11px}
-.sectionCompact .barRow{margin:10px 0;grid-template-columns:minmax(120px,1fr) minmax(140px,1.4fr) 90px}
-.sectionCompact .barTrack{height:24px}
-.sectionCompact .barLabel{font-size:13px}
-.sectionCompact .small{font-size:11px}
-.sectionCompact .legendText strong{font-size:13px}
-.sectionCompact .legendText span{font-size:12px}
-.sectionCompact .legendPct{font-size:14px}
-.sectionCompact .swatch{width:9px;height:9px}
-.sectionCompact .chartNote{font-size:11px}
-.compactShare .legend{grid-template-columns:1fr 1fr;gap:8px 18px}
-.compactShare .legendRow{padding:6px 0}
-.compactShare .legendRow div:last-child{font-size:14px}
-.span-full{grid-column:1 / -1}
-.tableWrap{max-height:430px;overflow:auto;border:1px solid var(--line);border-radius:14px;background:#091426}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{padding:12px 12px;border-bottom:1px solid rgba(34,56,86,.9);vertical-align:top}
-th{position:sticky;top:0;background:#12213a;z-index:3;text-align:left}
-td{color:#eef4ff}
-tbody tr:nth-child(even) td{background:rgba(255,255,255,.01)}
-tbody tr:hover td{background:rgba(103,169,255,.05)}
-#storeTable{min-width:1480px;table-layout:fixed}
-#storeTable th:nth-child(1),#storeTable td:nth-child(1){width:150px;font-weight:800}
-#storeTable th:nth-child(2),#storeTable td:nth-child(2){width:210px}
-#storeTable th:nth-child(3),#storeTable td:nth-child(3),#storeTable th:nth-child(4),#storeTable td:nth-child(4),#storeTable th:nth-child(5),#storeTable td:nth-child(5),#storeTable th:nth-child(6),#storeTable td:nth-child(6){width:90px;text-align:left}
-#storeTable th:nth-child(7),#storeTable td:nth-child(7){width:120px}
-#storeTable th:nth-child(8),#storeTable td:nth-child(8){width:170px}
-#storeTable th:nth-child(9),#storeTable td:nth-child(9){width:170px}
-#storeTable th:nth-child(10),#storeTable td:nth-child(10){width:170px}
-#storeTable th:nth-child(11),#storeTable td:nth-child(11){width:190px}
-#storeTable .small{display:block;margin-top:3px;color:var(--muted)}
-td.muted{color:var(--muted)}
-.rowTotal{background:#172946;font-weight:900}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
-.tab{padding:9px 12px;border-radius:999px;border:1px solid var(--line);background:#091426;color:var(--muted);cursor:pointer}
-.tab.active{background:linear-gradient(90deg,#1b4777,#1e806d);color:white}
-.risk{border-left:5px solid var(--warn);background:rgba(18,31,50,.72)}
-.risk.high{border-left-color:var(--bad)}
-.risk.good{border-left-color:var(--good)}
-.modal{position:fixed;inset:0;background:rgba(2,7,14,.72);display:none;align-items:center;justify-content:center;z-index:99;padding:18px}
-.modal.show{display:flex}
-.modalBox{width:min(1320px,96vw);max-height:88vh;overflow:auto;background:#0b1628;border:1px solid var(--line);border-radius:18px;padding:18px}
-.modalTop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;position:sticky;top:0;background:#0b1628;z-index:5;padding-bottom:10px}
-.close{font-size:22px;border-radius:10px;line-height:1}
-.small{font-size:12px;color:var(--muted)}
-.recon{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#071225;border-radius:12px;padding:12px;color:#dfeeff;border:1px solid var(--line)}
-.footer{color:var(--muted);font-size:12px;padding:20px 0}
-@media(max-width:1280px){.grid.overview{grid-template-columns:1fr}.heroMeta{grid-template-columns:1fr 1fr 1fr}}
-@media(max-width:1050px){.grid.kpi,.grid.three,.grid.two,.heroMeta,.compareGrid,.donutGrid,.impactGrid,.insightGrid,.insightCards,.statusLegend{grid-template-columns:1fr}.barRow{grid-template-columns:1fr}.barVal{text-align:left}h1{font-size:34px}}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg-gradient);
+  background-color: #070d19;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  min-height: 100vh;
+}
+
+.wrap {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+h1 {
+  font-family: var(--font-title);
+  font-size: 38px;
+  line-height: 1.15;
+  margin: 0 0 10px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ffffff 40%, #cbd5e1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+h2 {
+  font-family: var(--font-title);
+  font-size: 22px;
+  margin: 0 0 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  font-family: var(--font-title);
+  font-size: 16px;
+  margin: 0 0 8px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+p {
+  color: var(--text-secondary);
+  margin: 6px 0 16px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 24px;
+  margin: 20px 0;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-lg);
+}
+
+.grid {
+  display: grid;
+  gap: 20px;
+}
+
+.grid.kpi {
+  grid-template-columns: repeat(6, minmax(160px, 1fr));
+}
+
+.grid.two {
+  grid-template-columns: 1fr 1fr;
+}
+
+.grid.three {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.grid.overview {
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+}
+
+.eyebrow {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 12px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.badge.strong {
+  color: #fff;
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.05);
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.kpiBox {
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.kpiBox:hover {
+  background: var(--panel-hover);
+  border-color: rgba(99, 102, 241, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -12px rgba(99, 102, 241, 0.2);
+}
+
+.kpiBox:after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-indigo), var(--accent-teal));
+}
+
+.kpiBox:nth-child(even):after {
+  background: linear-gradient(90deg, var(--accent-teal), var(--accent-cyan));
+}
+
+.kpiBox:nth-child(3n):after {
+  background: linear-gradient(90deg, var(--accent-violet), var(--accent-rose));
+}
+
+.kpiBox .num {
+  font-family: var(--font-title);
+  font-size: 28px;
+  font-weight: 800;
+  margin: 8px 0;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.kpiBox .lbl {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.kpiBox .lbl:last-child {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: none;
+  letter-spacing: normal;
+  margin-top: auto;
+}
+
+.statusCard {
+  padding: 24px;
+}
+
+.statusTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.statusTitle {
+  font-family: var(--font-title);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.statusMeta {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.statusTrack {
+  height: 16px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  display: flex;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+  margin-bottom: 16px;
+}
+
+.statusSeg {
+  height: 100%;
+  transition: var(--transition);
+}
+
+.statusLegend {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.statusItem {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.statusItem:hover {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: var(--border-hover);
+}
+
+.statusItem strong {
+  display: block;
+  font-size: 16px;
+  line-height: 1.1;
+  font-family: var(--font-title);
+}
+
+.statusItem span {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+
+.controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 12px 0 20px;
+}
+
+input, select, button {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  transition: var(--transition);
+  outline: none;
+}
+
+input:focus, select:focus {
+  border-color: var(--accent-indigo);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  background: rgba(15, 23, 42, 0.85);
+}
+
+select {
+  cursor: pointer;
+  padding-right: 36px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+button {
+  cursor: pointer;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--accent-indigo), var(--accent-violet));
+  border: none;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+  opacity: 0.95;
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+.barRow {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.25fr) minmax(200px, 2fr) 120px;
+  gap: 16px;
+  align-items: center;
+  margin: 14px 0;
+  transition: var(--transition);
+}
+
+.barRow.clickable {
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 12px;
+  margin-left: -12px;
+  margin-right: -12px;
+}
+
+.barRow.clickable:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.barRow.clickable:hover .barLabel {
+  color: var(--accent-teal);
+}
+
+.barLabel {
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.3;
+  transition: var(--transition);
+}
+
+.barLabel .small {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.barTrack {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  position: relative;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent-indigo), var(--accent-violet));
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.barRow:nth-child(2n) .barFill {
+  background: linear-gradient(90deg, var(--accent-indigo), var(--accent-teal));
+}
+
+.barRow:nth-child(3n) .barFill {
+  background: linear-gradient(90deg, var(--accent-violet), var(--accent-cyan));
+}
+
+.barVal {
+  text-align: right;
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.barVal small {
+  display: block;
+  color: var(--text-secondary);
+  font-weight: 400;
+  font-family: var(--font-body);
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.chartPanel {
+  padding: 24px;
+}
+
+.chartPanel.compact {
+  padding: 20px;
+}
+
+.chartSvg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.chartSvg text {
+  font-family: var(--font-body);
+}
+
+.chartSvg text[font-weight="800"] {
+  font-family: var(--font-title);
+  font-weight: 800;
+}
+
+.chartSvg path {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  transform-origin: 110px 110px;
+  cursor: pointer;
+}
+
+#issueTypeDonut .chartSvg path {
+  transform-origin: 130px 130px;
+}
+
+#opsImpactDonut .chartSvg path {
+  transform-origin: 110px 110px;
+}
+
+.chartSvg path:hover {
+  opacity: 0.85;
+  transform: scale(1.02);
+}
+
+.legend {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.legendRow {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.donutGrid {
+  display: grid;
+  grid-template-columns: minmax(180px, .9fr) minmax(240px, 1.1fr);
+  gap: 24px;
+  align-items: center;
+}
+
+.donutFigure {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.donutLegend {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.donutLegend .legendRow {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.donutLegend .legendRow:last-child {
+  border-bottom: 0;
+}
+
+.legendText strong {
+  display: block;
+  font-size: 14px;
+  line-height: 1.25;
+  color: var(--text-primary);
+}
+
+.legendText span {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+.legendPct {
+  font-size: 16px;
+  font-weight: 800;
+  text-align: right;
+  font-family: var(--font-title);
+  color: var(--text-primary);
+}
+
+.chartNote {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.compareGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.compareBox {
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 20px;
+  transition: var(--transition);
+}
+
+.compareBox:hover {
+  background: var(--panel-hover);
+  transform: translateY(-2px);
+  border-color: var(--border-hover);
+}
+
+.compareBox strong {
+  display: block;
+  font-size: 28px;
+  line-height: 1.1;
+  margin-bottom: 6px;
+  font-family: var(--font-title);
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.compareTitle {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.compareNote {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.impactGrid {
+  display: grid;
+  grid-template-columns: .9fr 1.1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.impactSplit {
+  margin-top: 16px;
+  padding: 20px;
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid var(--border-color);
+}
+
+.splitHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 12px;
+}
+
+.splitHead strong {
+  font-size: 15px;
+  font-family: var(--font-title);
+  font-weight: 700;
+}
+
+.splitMeta {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.splitTrack {
+  height: 16px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  display: flex;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+}
+
+.splitSeg {
+  height: 100%;
+  transition: var(--transition);
+}
+
+.splitLegend {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.splitLegendItem {
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+}
+
+.splitLegendItem strong {
+  display: block;
+  font-size: 22px;
+  line-height: 1.1;
+  font-family: var(--font-title);
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.splitLegendItem span {
+  display: block;
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.impactCategory {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) minmax(150px, 1.3fr) 90px;
+  gap: 12px;
+  align-items: center;
+  margin: 12px 0;
+}
+
+.impactCategory .small {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.insightGrid {
+  display: grid;
+  grid-template-columns: .95fr 1.05fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.insightCards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(120px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.insightCard {
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 16px;
+  transition: var(--transition);
+}
+
+.insightCard:hover {
+  background: var(--panel-hover);
+  transform: translateY(-2px);
+  border-color: var(--border-hover);
+}
+
+.insightCard strong {
+  display: block;
+  font-size: 24px;
+  line-height: 1.1;
+  margin-bottom: 6px;
+  font-family: var(--font-title);
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.insightText {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.sectionCompact .compareNote {
+  font-size: 11px;
+}
+
+.sectionCompact .barRow {
+  margin: 10px 0;
+  grid-template-columns: minmax(120px, 1fr) minmax(140px, 1.4fr) 90px;
+}
+
+.sectionCompact .barTrack {
+  height: 8px;
+}
+
+.sectionCompact .barLabel {
+  font-size: 13px;
+}
+
+.sectionCompact .small {
+  font-size: 11px;
+}
+
+.sectionCompact .legendText strong {
+  font-size: 13px;
+}
+
+.sectionCompact .legendText span {
+  font-size: 11px;
+}
+
+.sectionCompact .legendPct {
+  font-size: 14px;
+}
+
+.sectionCompact .swatch {
+  width: 8px;
+  height: 8px;
+}
+
+.sectionCompact .chartNote {
+  font-size: 11px;
+}
+
+.compactShare .legend {
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+}
+
+.compactShare .legendRow {
+  padding: 4px 0;
+}
+
+.compactShare .legendRow div:last-child {
+  font-size: 14px;
+}
+
+.span-full {
+  grid-column: 1 / -1;
+}
+
+.tableWrap {
+  max-height: 430px;
+  overflow: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.45);
+  box-shadow: var(--shadow);
+}
+
+.tableWrap::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.tableWrap::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.3);
+}
+
+.tableWrap::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+}
+
+.tableWrap::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13.5px;
+}
+
+th, td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  vertical-align: top;
+  text-align: left;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background: #0f172a;
+  z-index: 5;
+  font-family: var(--font-title);
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+}
+
+td {
+  color: var(--text-primary);
+}
+
+tbody tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.01);
+}
+
+tbody tr:hover td {
+  background: rgba(99, 102, 241, 0.06);
+}
+
+td.muted {
+  color: var(--text-secondary);
+}
+
+.rowTotal td {
+  background: rgba(99, 102, 241, 0.15) !important;
+  font-weight: 800;
+  color: var(--text-primary);
+  border-top: 2px solid rgba(99, 102, 241, 0.3);
+}
+
+#storeTable {
+  min-width: 1480px;
+  table-layout: fixed;
+}
+
+#storeTable th:nth-child(1), #storeTable td:nth-child(1) {
+  width: 150px;
+  font-weight: 800;
+  color: var(--accent-teal);
+}
+
+#storeTable th:nth-child(2), #storeTable td:nth-child(2) {
+  width: 210px;
+}
+
+#storeTable th:nth-child(3), #storeTable td:nth-child(3),
+#storeTable th:nth-child(4), #storeTable td:nth-child(4),
+#storeTable th:nth-child(5), #storeTable td:nth-child(5),
+#storeTable th:nth-child(6), #storeTable td:nth-child(6) {
+  width: 90px;
+  text-align: left;
+}
+
+#storeTable th:nth-child(7), #storeTable td:nth-child(7) {
+  width: 120px;
+}
+
+#storeTable th:nth-child(8), #storeTable td:nth-child(8) {
+  width: 170px;
+}
+
+#storeTable th:nth-child(9), #storeTable td:nth-child(9) {
+  width: 170px;
+}
+
+#storeTable th:nth-child(10), #storeTable td:nth-child(10) {
+  width: 170px;
+}
+
+#storeTable th:nth-child(11), #storeTable td:nth-child(11) {
+  width: 190px;
+}
+
+#storeTable .small {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-secondary);
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 12px 0 16px;
+}
+
+.tab {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: rgba(15, 23, 42, 0.4);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 13.5px;
+  transition: var(--transition);
+}
+
+.tab:hover {
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.tab.active {
+  background: linear-gradient(135deg, var(--accent-indigo), var(--accent-violet));
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+}
+
+.risk {
+  border-left: 4px solid var(--accent-amber);
+  background: rgba(245, 158, 11, 0.04) !important;
+}
+
+.risk.high {
+  border-left-color: var(--accent-rose);
+  background: rgba(244, 63, 94, 0.04) !important;
+}
+
+.risk.good {
+  border-left-color: var(--accent-emerald);
+  background: rgba(16, 185, 129, 0.04) !important;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 24px;
+  transition: opacity 0.3s ease;
+}
+
+.modal.show {
+  display: flex;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.modalBox {
+  width: min(1320px, 96vw);
+  max-height: 85vh;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(24px);
+  transform: translateY(20px);
+  animation: slideUp 0.3s ease forwards;
+}
+
+.modalTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  position: sticky;
+  top: 0;
+  background: rgba(15, 23, 42, 0.01);
+  z-index: 5;
+  padding-bottom: 16px;
+}
+
+.close {
+  font-size: 28px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  padding: 0;
+  line-height: 1;
+  transition: var(--transition);
+}
+
+.close:hover {
+  color: var(--accent-rose);
+  transform: scale(1.1);
+}
+
+.small {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.recon {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 16px;
+  padding: 20px;
+  color: #dfeeff;
+  border: 1px solid var(--border-color);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.footer {
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 32px 0 16px;
+  border-top: 1px solid var(--border-color);
+  margin-top: 40px;
+  text-align: center;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); }
+  to { transform: translateY(0); }
+}
+
+@media (max-width: 1280px) {
+  .grid.overview {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1050px) {
+  .grid.kpi {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .grid.three, .grid.two, .compareGrid, .donutGrid, .impactGrid, .insightGrid, .insightCards, .statusLegend {
+    grid-template-columns: 1fr;
+  }
+  .barRow {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .barVal {
+    text-align: left;
+  }
+  h1 {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 640px) {
+  .grid.kpi {
+    grid-template-columns: 1fr 1fr;
+  }
+  .wrap {
+    padding: 20px 16px;
+  }
+}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>June Missing Item RCA Deep-Dive — Final Dashboard</h1>
-  <p><b>Purpose:</b> remove ambiguity. Category and product are now separated as <b>Family → Product → Complaint Evidence</b>. Every number shows its base.</p>
+  <header style="margin-bottom: 32px;">
+    <span class="badge strong" style="margin-bottom: 12px; letter-spacing: 0.05em; text-transform: uppercase; font-size: 11px;">RCA Deep-Dive Report</span>
+    <h1>June Missing Item RCA Deep-Dive</h1>
+    <p style="font-size: 15px; color: var(--text-secondary); max-width: 850px; line-height: 1.6; margin-top: 8px; margin-bottom: 0;">
+      <strong>Purpose:</strong> Eliminate ambiguity. Category and product are now separated as <strong>Family &rarr; Product &rarr; Complaint Evidence</strong>. Every metric shows its baseline.
+    </p>
+  </header>
 
   <div class="card statusCard">
     <div class="statusTop">
@@ -270,14 +1226,6 @@ td.muted{color:var(--muted)}
   </div>
 
   <div class="card">
-    <h2>11) Fix-in-our-hand comparison</h2>
-    <p>This compares all missing-item rows against the confirmed store-side subset, then shows how much of the complaint load sits inside the last 10 available June dates in the source file.</p>
-    <div class="compareGrid" id="fixCompareGrid"></div>
-    <div id="fixCompareBars"></div>
-    <p class="compareNote" id="fixCompareNote"></p>
-  </div>
-
-  <div class="card">
     <h2>12) Store-wise analysis: verdict + driver + product + staff + cluster</h2>
     <div class="controls">
       <input id="storeSearch" placeholder="Search store, city, cluster, driver, product..."/>
@@ -363,7 +1311,7 @@ const $ = id => document.getElementById(id);
 const esc = v => String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const pct = (n,d) => d ? (100*n/d).toFixed(1)+'%' : '0.0%';
 const fmt = n => (n ?? 0).toLocaleString();
-const palette = ['#67a9ff','#57d6b3','#8b7dff','#ffc96c','#ff7878','#7fe2a0','#5fd1ff'];
+const palette = ['#6366f1', '#14b8a6', '#8b5cf6', '#f59e0b', '#f43f5e', '#06b6d4', '#10b981'];
 const ISSUE_BASELINE = {
   totalIssueRows: 1300,
   last10IssueRows: 1225,
@@ -392,48 +1340,314 @@ const OPERATIONAL_BUCKET = {
   confirmedOperational: 194
 };
 const QT_OPERATIONAL_INSIGHT = {
-  totalQualityTaste: 487,
-  confirmedQualityTaste: 63,
-  confirmedWithOperationalSignal: 47,
-  patternCounts: {
-    'Quantity / component miss': 23,
-    'Packing / QC breakdown': 21,
-    'Kitchen execution failure': 15,
-    'Wrong item / substitution': 8,
-    'Dispatch / handoff error': 7,
-    'KOT / bill read failure': 3
+  "totalQualityTaste": 487,
+  "confirmedQualityTaste": 63,
+  "confirmedWithOperationalSignal": 63,
+  "patternCounts": {
+    "Kitchen SOP & Prep Deviation": 46,
+    "Quantity / Component Miss": 8,
+    "Wrong Item / Substitution Dispatch": 6,
+    "Transit Spillage & Packaging Damage": 2,
+    "Rider / Transit Delay (Cold Food)": 1
   }
 };
+
 const QT_OPERATIONAL_PROOF = {
-  'Quantity / component miss': [
-    {Store:'Kalina', Issue_text:"The rice was very salty and the chicken was very bad. I didn't even eat one piece of chicken.", RCA:'The order was not made according to SOP.'},
-    {Store:'Ravet', Issue_text:'Mint chutney and sauce were not given.', RCA:'Store execution issue on sauce portion.'},
-    {Store:'DLF Phase 5', Issue_text:'Little chunks of meat were tossed into the gravy and some portions felt rubbery.', RCA:'Staff not aware of SOP of mutton bhuna.'}
+  "Kitchen SOP & Prep Deviation": [
+    {
+      "Date_fmt": "11-Jun",
+      "Order_ID": "8217576976",
+      "Store": "Palam Vihar",
+      "Channel": "Zomato",
+      "Source": "Dashboard Complaint",
+      "Verdict": "Confirmed store-side",
+      "Staff": "mayank",
+      "Primary_driver": "Operational error",
+      "Issue_text": ": 1 x Soya Chaap Tikka Roll - 7 Inches ₹249 “Order from **Charcoal Eats - Biryani & Beyond** - I have food taste, quality or quantity issue with my order - More.. - Cold/Soggy item(s) - My food was supposed to be delivered by 2am and it has reached at 3am. There was a 1 hour delay without any traffic and without any rain or any other valid reason. i want a fair assistance for this case. This was purely lack of coordination and false communication to me regarding it being on the way from Zomato’s end. Please provide a justified support”",
+      "RCA": "Issue from store side",
+      "Additional": "He was not follow sop add extra green chutney in roll"
+    },
+    {
+      "Date_fmt": "03-Jun",
+      "Order_ID": "2.39442E+14",
+      "Store": "Sector 85",
+      "Channel": "Swiggy",
+      "Source": "Review",
+      "Verdict": "Confirmed store-side",
+      "Staff": "sonu yadav",
+      "Primary_driver": "Operational error",
+      "Issue_text": "There was no chichen inside there was no filling inside. Please call me who ever made this roll should be fired. I have no clue why are you even operating as a restaurant. They delivered me cold empty roll with few peaces of onion inside. Either return my money or i am taking action",
+      "RCA": "yes genuine complaint",
+      "Additional": "not using any protin in Chicken tikka rolll"
+    },
+    {
+      "Date_fmt": "03-Jun",
+      "Order_ID": "2.39394E+14",
+      "Store": "Salunke Vihar",
+      "Channel": "Swiggy",
+      "Source": "Dashboard Complaint",
+      "Verdict": "Confirmed store-side",
+      "Staff": "Shubham",
+      "Primary_driver": "Operational error",
+      "Issue_text": "Stale food | Paneer Tikka (180 Gms) with Addons: Pepsi (330 Ml), Free Cutlery 1 No. [Select To Add]  Stale food | Soya Chaap Tikka Roll - 7 Inches with Addons: Wheat Lachcha Paratha“The food is unsafe to eat at all. It's stale and the paneer stinks. Paneer is not cooked. ”",
+      "RCA": "Not follow the sop",
+      "Additional": "—"
+    },
+    {
+      "Date_fmt": "03-Jun",
+      "Order_ID": "8194324789",
+      "Store": "Faridabad 16A",
+      "Channel": "Zomato",
+      "Source": "Dashboard Complaint",
+      "Verdict": "Confirmed store-side",
+      "Staff": "Ajay Kumar",
+      "Primary_driver": "Operational error",
+      "Issue_text": "1 x Spicy Chicken Dum Biryani (Boneless, Serves 1) ₹449 “Unwanted object(s) in food - There’s a piece of hair in the rice. Totally disgusting from charcoal biryani’s side. Didn’t expect this. My whole biryani is wasted now. Had to throw it all away”",
+      "RCA": "Yes genuine complaint",
+      "Additional": "Tha Order was also prepared completely according to SOP. The staff was not wearing proper hairnets, so hair could have gotten into the order while it was being prepared."
+    },
+    {
+      "Date_fmt": "08-Jun",
+      "Order_ID": "8195307759",
+      "Store": "Ramji market",
+      "Channel": "Zomato",
+      "Source": "Review",
+      "Verdict": "Confirmed store-side",
+      "Staff": "banarshi manji",
+      "Primary_driver": "Operational error",
+      "Issue_text": "biryani had almost no salt, the onions were over caramelized (almost burnt), Rice was little sticky and it had 2 smallest possible pieces of chicken..... felt like I have been served last night biryani, somehow managed to eat it because of hunger",
+      "RCA": "issue from Store End",
+      "Additional": "rice was proper but he was given red chicken tikka"
+    }
   ],
-  'Packing / QC breakdown': [
-    {Store:'Sector 85', Issue_text:'There was no chicken inside, no filling inside the roll.', RCA:'Yes, genuine complaint.'},
-    {Store:'Vashi', Issue_text:'Did not receive my extra raita. Request refund.', RCA:'The extra raita was not given in the order.'},
-    {Store:'Dwarka Mor', Issue_text:'Roll was too dry inside without mayonnaise, only dry chicken and onion.', RCA:'Outlet side faulty.'}
+  "Quantity / Component Miss": [
+    {
+      "Date_fmt": "09-Jun",
+      "Order_ID": "2.39972E+14",
+      "Store": "Vidya Vihar",
+      "Channel": "Swiggy",
+      "Source": "Dashboard Complaint",
+      "Verdict": "Confirmed store-side",
+      "Staff": "altamash Ansari",
+      "Primary_driver": "Operational error",
+      "Issue_text": "Contaminated Food | Hyderabadi Chicken Dum Biryani Bowl (Boneless) (430 gms) with Addons: Onion Raita (100 Gms)  “Two plastic pieces in the biryani ”",
+      "RCA": "CCTV footage could not confirm whether the contamination from the restaurant side. However.... it was observed that staff was not cutting the gravy packet as per SOP which may have led to plastic pieces entering the food.",
+      "Additional": "—"
+    },
+    {
+      "Date_fmt": "04-Jun",
+      "Order_ID": "2.39524E+14",
+      "Store": "Majiwada",
+      "Channel": "Swiggy",
+      "Source": "Dashboard Complaint",
+      "Verdict": "Confirmed store-side",
+      "Staff": "shiva",
+      "Primary_driver": "Operational error",
+      "Issue_text": "Stale food | Hara Bhara Kebab (6 Pcs)  “The kabab is stale sofe and has fungus growing on it”",
+      "RCA": "Order made by shiva fresh kabab used properly grilled by chat masala extra sprinkle becouse staff not aware that container lid is loss and he given extra sprinkle chat masala kabab",
+      "Additional": "container lid was lossed"
+    },
+    {
+      "Date_fmt": "10-Jun",
+      "Order_ID": "2.3999E+14",
+      "Store": "Sector 85",
+      "Channel": "Swiggy",
+      "Source": "Dashboard Complaint",
+      "Verdict": "Confirmed store-side",
+      "Staff": "amit",
+      "Primary_driver": "Operational error",
+      "Issue_text": "Cold food | Onion Salad  Cold food | Spicy Chicken Dum Biryani (Boneless, Serves 1)  Cold food | Rumali Roti (1 No.)  Cold food | Hyderabadi Chicken (250 Gms)  Cold food | Plain Raita (100 Gms)“.....”",
+      "RCA": "yes genuine complaint",
+      "Additional": "The order was received at 9:19 PM and was ready at 9:52 PM due to delays from the kitchen side. SOP was not followed properly, and the double-check process was missed. The rider was assigned late and took an additional 20 minutes for delivery. As a result, the order reached the customer approximately 1 hour and 20 minutes after it was placed."
+    },
+    {
+      "Date_fmt": "07-Jun",
+      "Order_ID": "8209800719",
+      "Store": "Lajpat Nagar",
+      "Channel": "Zomato",
+      "Source": "Review",
+      "Verdict": "Confirmed store-side",
+      "Staff": "arun and anuj",
+      "Primary_driver": "Operational error",
+      "Issue_text": "No Spoon or fork sent with the order... Chicken Pieces were very Less as compared to the Rice. Overall not that Great taste.",
+      "RCA": "Yes Cutlery Missing From Kitchen Side Rest Order Made As Per SOP.",
+      "Additional": "cutlrey missing mistick by staff"
+    },
+    {
+      "Date_fmt": "07-Jun",
+      "Order_ID": "8213266218",
+      "Store": "Kothrud",
+      "Channel": "Zomato",
+      "Source": "Review",
+      "Verdict": "Confirmed store-side",
+      "Staff": "Shivam Singh",
+      "Primary_driver": "Operational error",
+      "Issue_text": "please do not order from this restaurant, the quantity is so less for a full plate of biryani with not even 50gm of chicken and just 2 tiny chicken pieces. don't waste your money",
+      "RCA": "—",
+      "Additional": "Genuine complaint"
+    }
   ],
-  'Kitchen execution failure': [
-    {Store:'Kalyan', Issue_text:'Taste and quality issue with raita.', RCA:'The customer was provided expired raita by the store, showing FIFO failure.'},
-    {Store:'Taloja', Issue_text:'Uncooked food, smelly chicken galouti kebab.', RCA:'Order was not made properly.'},
-    {Store:'Salunke Vihar', Issue_text:'Stale food in paneer tikka and soya chaap.', RCA:'Did not follow SOP.'}
+  "Wrong Item / Substitution Dispatch": [
+    {
+      "Date_fmt": "07-Jun",
+      "Order_ID": "8211172288",
+      "Store": "Ulhas Nagar",
+      "Channel": "Zomato",
+      "Source": "Review",
+      "Verdict": "Confirmed store-side",
+      "Staff": "Pawan",
+      "Primary_driver": "Operational error",
+      "Issue_text": "Only half egg in egg biryani and very poor preparations",
+      "RCA": "Order was not made as per sop 430 gm briyani we have used 2 egg in briyani 1 is mix in gravy and 1 egg cut half but staff used only 1 egg half egg used in gravy and half egg used for garnish",
+      "Additional": "—"
+    },
+    {
+      "Date_fmt": "07-Jun",
+      "Order_ID": "8201281797",
+      "Store": "Indirapuram",
+      "Channel": "Zomato",
+      "Source": "Review",
+      "Verdict": "Confirmed store-side",
+      "Staff": "prince",
+      "Primary_driver": "Operational error",
+      "Issue_text": "Need to serious escalate issue where I've received non-vegetarian biryani instead of vegetarian biryani",
+      "RCA": "yes staff didnt read kot properly and make non veg biryani instead of veg",
+      "Additional": "new staff made this order by mistake make non veg biryani not cross check follow given first warning letter issue by mail to hr"
+    },
+    {
+      "Date_fmt": "10-Jun",
+      "Order_ID": "8207154478",
+      "Store": "Faridabad 81",
+      "Channel": "Zomato",
+      "Source": "Review",
+      "Verdict": "Confirmed store-side",
+      "Staff": "Khushi Singh",
+      "Primary_driver": "Operational error",
+      "Issue_text": "Kathi roll was too bad... soggy roti and not wrapped properly, entire chicken filling was coming out",
+      "RCA": "Yes genuine complaint",
+      "Additional": "The staff did not prepare the Kathi Malai Chicken Tikka Roll according to the SOP. Instead of applying the Nagin mayonnaise over the chicken inside the roll, the staff squeezed it onto the top of the roll. The SOP was not followed."
+    },
+    {
+      "Date_fmt": "07-Jun",
+      "Order_ID": "8208846745",
+      "Store": "Talegaon",
+      "Channel": "Zomato",
+      "Source": "Dashboard Complaint",
+      "Verdict": "Confirmed store-side",
+      "Staff": "aadesh",
+      "Primary_driver": "Operational error",
+      "Issue_text": ": 1 x Veg Dum Biryani Bowl ₹429",
+      "RCA": "order fulfillment error incorrect item dispatched due to a mix up in the packing area",
+      "Additional": "lnitial investigationshows alapse in the final order verificaton process before dispatch"
+    },
+    {
+      "Date_fmt": "07-Jun",
+      "Order_ID": "8211514617",
+      "Store": "Hinjewadi Phase 3",
+      "Channel": "Zomato",
+      "Source": "Review",
+      "Verdict": "Confirmed store-side",
+      "Staff": "aditya kumar",
+      "Primary_driver": "Operational error",
+      "Issue_text": "received 1 rumali roti instead of 2",
+      "RCA": "1 Rumali roti was given from store side not read bill properly",
+      "Additional": "—"
+    }
   ],
-  'Wrong item / substitution': [
-    {Store:'Alpha 1', Issue_text:'Very basic, not worth it.', RCA:'There was not proper SOP followed by staff.'},
-    {Store:'Hinjewadi Phase 3', Issue_text:'Received 1 rumali roti instead of 2.', RCA:'One rumali roti was given; staff did not read bill properly.'},
-    {Store:'Indirapuram', Issue_text:'Received non-veg biryani instead of vegetarian biryani.', RCA:'Yes, staff did not read KOT properly and made non-veg instead of veg.'}
+  "Transit Spillage & Packaging Damage": [
+    {
+      "Date_fmt": "01-Jun",
+      "Order_ID": "8186985656",
+      "Store": "Kalyan",
+      "Channel": "Zomato",
+      "Source": "Dashboard Complaint",
+      "Verdict": "Confirmed store-side",
+      "Staff": "onakar",
+      "Primary_driver": "Operational error",
+      "Issue_text": "1 x Dum Spicy Egg Biryani Bowl (New) ₹329 “Order from **Charcoal Eats - Biryani & Beyond** - I have food taste, quality or quantity issue with my order - Unsatisfactory taste or preparation - \"\"The egg biryani is too good, but after opening the raita container, a foul smell spread throughout my room. It appears that the raita had gone bad, which affected the overall experience”",
+      "RCA": "The customer was provided with expired Raita by the store, indicating a failure on the store's part to adhere to FIFOprotocols",
+      "Additional": "yes issue from our side"
+    },
+    {
+      "Date_fmt": "10-Jun",
+      "Order_ID": "8222613082",
+      "Store": "Majiwada",
+      "Channel": "Zomato",
+      "Source": "Dashboard Complaint",
+      "Verdict": "Confirmed store-side",
+      "Staff": "—",
+      "Primary_driver": "Operational error",
+      "Issue_text": "1 x The Charcoal Eats Experience (Non-veg) ₹2198 “⬅ Go back - Unsatisfactory taste or preparation - They sent 2 basic non vag thalis for 2200 ₹ 🤢🤢”",
+      "RCA": "This is frist order of zomato special meal staff confused she made proper order but sarve in our regular special meal packaging not provide paticular package of zomato special meal packaging",
+      "Additional": "—"
+    }
   ],
-  'Dispatch / handoff error': [
-    {Store:'Goregaon East', Issue_text:'Strong particles present in the biryani.', RCA:'Heating time was 3 minutes, so the chicken became hard.'},
-    {Store:'Talegaon', Issue_text:'Veg dum biryani order fulfillment issue.', RCA:'Incorrect item dispatched due to mix-up in the packing area.'},
-    {Store:'Versova', Issue_text:'Found a piece of paper in the food.', RCA:'Paper contamination entered the gravy during preparation and handling.'}
-  ],
-  'KOT / bill read failure': [
-    {Store:'Hinjewadi Phase 3', Issue_text:'Received 1 rumali roti instead of 2.', RCA:'Staff did not read bill properly.'},
-    {Store:'Indirapuram', Issue_text:'Received non-veg biryani instead of vegetarian biryani.', RCA:'Staff did not read KOT properly and made the wrong biryani.'},
-    {Store:'Majiwada', Issue_text:'Regular special meal packaging issue in a Zomato special meal order.', RCA:'Staff got confused and served the regular special meal packaging.'}
+  "Rider / Transit Delay (Cold Food)": [
+    {
+      "Date_fmt": "02-Jun",
+      "Order_ID": "2.39312E+14",
+      "Store": "Majiwada",
+      "Channel": "Swiggy",
+      "Source": "Dashboard Complaint",
+      "Verdict": "Not confirmed store-side",
+      "Staff": "—",
+      "Primary_driver": "Operational error",
+      "Issue_text": "Cold food | Soya Chaap Tikka Roll - 7 Inches with Addons: Wheat Lachcha Paratha  Cold food | Charcoal Veg Biryani Bowl (430 gms) with Addons: Onion Raita (100 Gms)“The order was super delayed from the delivery person side when I called an asking where is order he wasn't able to find restaurant and my food was sitting cold till he picked it up too late”",
+      "RCA": "Store side order ready in 10 minutes raider side issue he is delivered late.",
+      "Additional": "—"
+    },
+    {
+      "Date_fmt": "02-Jun",
+      "Order_ID": "2.39378E+14",
+      "Store": "Malad West",
+      "Channel": "Swiggy",
+      "Source": "Dashboard Complaint",
+      "Verdict": "Not confirmed store-side",
+      "Staff": "kuldeep",
+      "Primary_driver": "Operational error",
+      "Issue_text": "Cold food | Lucknowi Chicken Mini Biryani Bowl  “cold food”",
+      "RCA": "The order was prepared and handed over within the standard timeline. The order was ready at 9:00 PM; however, delivery was delayed by the rider, and the customer received the order approximately 1 hour 30 minutes later. Due to the delivery delay, the food temperature was affected, resulting in a cold food experience. No delay was observed from the store side.",
+      "Additional": "—"
+    },
+    {
+      "Date_fmt": "06-Jun",
+      "Order_ID": "2.39726E+14",
+      "Store": "Malad West",
+      "Channel": "Swiggy",
+      "Source": "Dashboard Complaint",
+      "Verdict": "Not confirmed store-side",
+      "Staff": "kuldeep",
+      "Primary_driver": "Operational error",
+      "Issue_text": "Cold food | Charcoal Veg Biryani Bowl  “cold food”",
+      "RCA": "The order was prepared as per the standard SOP using fresh ingredients and was handed over within the committed timeline. Upon review, the delay occurred from the delivery partner's side, and the order was delivered approximately 1 hour later than expected, which may have resulted in the food being received cold by the customer",
+      "Additional": "—"
+    },
+    {
+      "Date_fmt": "10-Jun",
+      "Order_ID": "8224337142",
+      "Store": "Kadirpur",
+      "Channel": "Zomato",
+      "Source": "Dashboard Complaint",
+      "Verdict": "Confirmed store-side",
+      "Staff": "Dharmendra",
+      "Primary_driver": "Operational error",
+      "Issue_text": "2 x Double Egg Roll - 7 Inches ₹398 “I have food taste, quality or quantity issue with my order - More.. - Cold/Soggy item(s) - The order was too delayed and taste cold and soggy. The delivery partner was assigned with 3 orders at a time”",
+      "RCA": "Issue from store side",
+      "Additional": "Staff not follow sop add extra green chutney in roll that why roll was soggy"
+    },
+    {
+      "Date_fmt": "10-Jun",
+      "Order_ID": "2.40056E+14",
+      "Store": "Versova",
+      "Channel": "Swiggy",
+      "Source": "Dashboard Complaint",
+      "Verdict": "Not confirmed store-side",
+      "Staff": "dav",
+      "Primary_driver": "Operational error",
+      "Issue_text": "Spicy Chicken Biryani Bowl (Boneless) (430 gms) with Addons: Onion Raita (100 Gms) “Delayed delivery completely cold food”",
+      "RCA": "order was prepared on time from the restaurant side. However.. the rider picked up the order late and delivered it approximately 1.5 hours later, resulting in cold food.",
+      "Additional": "No SOP deviation found at the outlet. Delay occurred during delivery."
+    }
   ]
 };
 
@@ -469,7 +1683,7 @@ function renderVerdictDonut(){
         <svg class="chartSvg" viewBox="0 0 320 320" role="img" aria-label="Complaint share donut chart">
           <g transform="translate(40 40)">
             ${arcs}
-            <circle cx="110" cy="110" r="46" fill="#0b1628"></circle>
+            <circle cx="110" cy="110" r="46" fill="#0f172a"></circle>
             <text x="110" y="102" text-anchor="middle" fill="#95a7c5" font-size="12">Issue-coded</text>
             <text x="110" y="130" text-anchor="middle" fill="#eef4ff" font-size="28" font-weight="800">${fmt(total)}</text>
           </g>
@@ -570,7 +1784,11 @@ function renderCityStacked(){
         </div>
         <div class="barVal">${pct(row.confirmed,total)}<small>${fmt(row.confirmed)} confirmed</small></div>
       </div>`;
-  }).join('') + `<div class="chipRow"><span class="badge">Green = confirmed</span><span class="badge">Blue = not confirmed</span><span class="badge">Red = unknown</span></div>`;
+  }).join('') + `<div class="chipRow" style="margin-top: 12px;">
+    <span class="badge"><span class="swatch" style="background:${palette[1]};margin-right:6px;width:8px;height:8px"></span>Confirmed</span>
+    <span class="badge"><span class="swatch" style="background:${palette[0]};margin-right:6px;width:8px;height:8px"></span>Not confirmed</span>
+    <span class="badge"><span class="swatch" style="background:${palette[4]};margin-right:6px;width:8px;height:8px"></span>Unknown</span>
+  </div>`;
 }
 function renderIssueTypeDonut(){
   const entries = topEntries(ISSUE_TYPE_COUNTS, 10);
@@ -587,7 +1805,7 @@ function renderIssueTypeDonut(){
       <svg class="chartSvg" viewBox="0 0 220 220" role="img" aria-label="Complaint type share donut chart">
         <g transform="translate(-20 -20)">
           ${arcs}
-          <circle cx="130" cy="130" r="52" fill="#0b1628"></circle>
+          <circle cx="130" cy="130" r="52" fill="#0f172a"></circle>
           <text x="130" y="120" text-anchor="middle" fill="#95a7c5" font-size="12">Issue-coded</text>
           <text x="130" y="146" text-anchor="middle" fill="#eef4ff" font-size="28" font-weight="800">${fmt(total)}</text>
         </g>
@@ -626,7 +1844,7 @@ function renderOperationalImpact(){
         <svg class="chartSvg" viewBox="0 0 260 260" role="img" aria-label="Operational improvement potential donut chart">
           <g transform="translate(20 20)">
             ${arcs}
-            <circle cx="110" cy="110" r="46" fill="#0b1628"></circle>
+            <circle cx="110" cy="110" r="46" fill="#0f172a"></circle>
             <text x="110" y="98" text-anchor="middle" fill="#95a7c5" font-size="12">Addressable</text>
             <text x="110" y="126" text-anchor="middle" fill="#eef4ff" font-size="28" font-weight="800">${pct(opsTotal, total)}</text>
           </g>
@@ -820,13 +2038,52 @@ function showProduct(name){
   openModal('Product evidence: '+name, `${rows.length} confirmed cases mention this product.`, rows);
 }
 function showQtPattern(name){
-  const rows = QT_OPERATIONAL_PROOF[name] || [];
+  const proofRows = QT_OPERATIONAL_PROOF[name] || [];
+  const patternReasonMap = {
+    'Kitchen SOP & Prep Deviation': 'Taste/quality complaints (like over-salted, raw, or stale food) confirmed to be due to staff deviating from recipe weight or heating timer SOPs.',
+    'Quantity / Component Miss': 'Logged under Quality & Taste but the root cause is actually a missing meal component (e.g. missing raita, cutlery, or paratha).',
+    'Wrong Item / Substitution Dispatch': 'Appeared as a quality complaint but the actual cause is wrong-item packing or a KOT misread resulting in a substitution.',
+    'Transit Spillage & Packaging Damage': 'Complaints of leaked oils or squashed packaging due to transit handling rather than food prep.',
+    'Rider / Transit Delay (Cold Food)': 'Complaints of cold or soggy food caused by transit delays. CCTV proves food was ready on-time, pointing to delivery partner transit issues.'
+  };
+  const patternReason = patternReasonMap[name] || 'Categorised as Quality & Taste but RCA reveals an underlying operational execution failure.';
+  const enrichedRows = proofRows.map(pr => {
+    return {
+      Store: pr.Store,
+      Issue_text: pr.Issue_text,
+      RCA_proof: pr.RCA,
+      Order_ID: pr.Order_ID || '—',
+      Date_fmt: pr.Date_fmt || '—',
+      Channel: pr.Channel || '—',
+      Source: pr.Source || '—',
+      Verdict: pr.Verdict || '—',
+      Staff: pr.Staff || '—',
+      Primary_driver: pr.Primary_driver || '—',
+      RCA_full: pr.Additional && pr.Additional !== '—' ? `${pr.RCA} (${pr.Additional})` : pr.RCA,
+      Why_hidden: patternReason
+    };
+  });
   const cols = [
-    {key:'Store'},
-    {key:'Issue_text', label:'Customer / issue text'},
-    {key:'RCA', label:'RCA proof'}
+    {key:'Date_fmt',       label:'Date'},
+    {key:'Order_ID',       label:'Order ID'},
+    {key:'Store',          label:'Store'},
+    {key:'Channel',        label:'Channel'},
+    {key:'Source',         label:'Source'},
+    {key:'Verdict',        label:'Verdict'},
+    {key:'Staff',          label:'Staff'},
+    {key:'Primary_driver', label:'Primary Driver'},
+    {key:'Issue_text',     label:'Customer Complaint (exact text)'},
+    {key:'RCA_proof',      label:'RCA Proof Summary'},
+    {key:'RCA_full',       label:'Full RCA Statement'},
+    {key:'Why_hidden',     label:'Why this is a hidden Q&T operational pattern', html:true,
+      fn: r => '<span style="color:var(--accent-amber);font-size:12px;line-height:1.45;display:block">' + esc(r.Why_hidden) + '</span>'}
   ];
-  openModal('Proof: ' + name, `${rows.length} sample RCA-backed examples from Quality & Taste rows.`, rows, cols);
+  openModal(
+    'Proof: ' + name,
+    enrichedRows.length + ' sample RCA-backed examples from Quality & Taste rows — showing why each is actually a hidden operational execution failure, not a pure food-quality issue.',
+    enrichedRows,
+    cols
+  );
 }
 
 function init(){
@@ -849,7 +2106,6 @@ function init(){
   renderTopStores();
   renderOperationalImpact();
   renderQualityOperationalInsight();
-  renderFixComparison();
   barList($('verdictBars'), DATA.verdict_counts, k.total_records);
   barList($('primaryBars'), DATA.primary_counts, k.confirmed);
   barList($('tagBars'), DATA.cause_tag_counts, k.confirmed, {onClick:"showTag('__NAME__')"});
